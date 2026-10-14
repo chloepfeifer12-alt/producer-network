@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { EyeOff, Search, Sprout, Users, X } from "lucide-react";
+import { SlidersHorizontal, Users, X } from "lucide-react";
 import type { Availability, ExperienceLevel, LineSlug } from "@/lib/data/types";
 import { AVAILABILITY_LABEL, EXPERIENCE_LABEL, INSURANCE_LINES, lineName, stateName } from "@/lib/data/taxonomy";
 import { Button } from "@/components/ui/button";
-import { Input, Label, Select } from "@/components/ui/form";
+import { Label, Select } from "@/components/ui/form";
 import { EmptyState } from "@/components/ui/feedback";
 import { MemberCard } from "@/components/network/member-card";
 import { cn } from "@/lib/utils/cn";
@@ -28,6 +28,7 @@ export const EMPTY_FILTERS: DirectoryFilters = { q: "", line: "", state: "", lev
 const EXPERIENCE = Object.keys(EXPERIENCE_LABEL) as ExperienceLevel[];
 const AVAILABILITY = Object.keys(AVAILABILITY_LABEL) as Availability[];
 const PAGE = 12;
+const CONTROL = "h-10 text-[13.5px]";
 
 function levelMatches(level: string, value: ExperienceLevel) {
   if (!level) return true;
@@ -46,6 +47,7 @@ export function PeopleDirectory({
   onChange,
   signedIn,
   hiddenCount,
+  suggestedIds = [],
   onJoin,
 }: {
   entries: MemberEntry[];
@@ -54,18 +56,25 @@ export function PeopleDirectory({
   signedIn: boolean;
   /** Members-only profiles a visitor can't see (count only). */
   hiddenCount: number;
+  /** Featured professionals, shown first when nothing is filtered. */
+  suggestedIds?: string[];
   onJoin: () => void;
 }) {
   const [limit, setLimit] = useState(PAGE);
+  const moreActive = !!(filters.state || filters.availability || filters.mentors || filters.sort !== "relevant");
+  const [moreOpen, setMoreOpen] = useState(moreActive);
   const set = <K extends keyof DirectoryFilters>(k: K, v: DirectoryFilters[K]) => {
     setLimit(PAGE);
     onChange({ ...filters, [k]: v });
   };
 
   const states = useMemo(() => Array.from(new Set(entries.map((m) => m.profile.state))).sort(), [entries]);
+  const active = !!(filters.q || filters.line || filters.state || filters.level || filters.availability || filters.mentors);
+  const showSuggested = !active && filters.sort === "relevant" && suggestedIds.length > 0;
 
   const results = useMemo(() => {
     const needle = filters.q.trim().toLowerCase();
+    const rank = (id: string) => (showSuggested && suggestedIds.includes(id) ? suggestedIds.indexOf(id) : Infinity);
     return entries
       .filter(({ profile, name }) => {
         if (needle) {
@@ -83,53 +92,52 @@ export function PeopleDirectory({
         if (a.isSelf !== b.isSelf) return a.isSelf ? 1 : -1;
         if (filters.sort === "name") return a.name.localeCompare(b.name);
         if (filters.sort === "experience") return b.profile.yearsInIndustry - a.profile.yearsInIndustry || a.name.localeCompare(b.name);
+        const ra = rank(a.profile.userId);
+        const rb = rank(b.profile.userId);
+        if (ra !== rb) return ra < rb ? -1 : 1;
         return b.shared.length - a.shared.length || b.mutual - a.mutual || b.features.length - a.features.length || a.name.localeCompare(b.name);
       });
-  }, [entries, filters]);
+  }, [entries, filters, showSuggested, suggestedIds]);
 
-  const active = !!(filters.q || filters.line || filters.state || filters.level || filters.availability || filters.mentors);
   const clear = () => {
     setLimit(PAGE);
     onChange({ ...EMPTY_FILTERS, sort: filters.sort });
   };
   const shown = results.slice(0, limit);
+  const moreCount = [filters.state, filters.availability, filters.mentors].filter(Boolean).length;
 
   return (
     <div>
-      <div className="grid gap-4 border-y border-line py-5 lg:grid-cols-12 lg:items-end">
-        <div className="lg:col-span-4">
-          <Label htmlFor="people-search">Search the directory</Label>
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-4" strokeWidth={1.75} />
-            <Input
-              id="people-search"
-              type="search"
-              value={filters.q}
-              onChange={(e) => set("q", e.target.value)}
-              placeholder="Name, city, expertise: “cyber”, “fleet”…"
-              className="pl-9"
-            />
-          </div>
+      {/* One compact filter row */}
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-3" aria-live="polite">
+          <span>
+            <span className="font-medium text-ink-2">{pluralize(results.length, "professional")}</span>
+            {filters.q && <> matching &ldquo;{filters.q}&rdquo;</>}
+            {filters.line && <> in {lineName(filters.line)}</>}
+            {filters.state && <> · {stateName(filters.state)}</>}
+            {filters.level && <> · {levelLabel(filters.level)}</>}
+            {filters.mentors && <> · open to mentoring</>}
+          </span>
+          {active && (
+            <button type="button" onClick={clear} className="inline-flex items-center gap-1 font-medium text-ink-2 hover:text-ink">
+              <X className="h-3.5 w-3.5" /> Clear
+            </button>
+          )}
         </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:col-span-8">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
           <div>
-            <Label htmlFor="f-line">Specialty</Label>
-            <Select id="f-line" value={filters.line} onChange={(e) => set("line", e.target.value as LineSlug | "")}>
+            <Label htmlFor="f-line" className="sr-only">Specialty</Label>
+            <Select id="f-line" value={filters.line} onChange={(e) => set("line", e.target.value as LineSlug | "")} className={cn(CONTROL, "sm:w-48")}>
               <option value="">All specialties</option>
               {INSURANCE_LINES.map((l) => <option key={l.slug} value={l.slug}>{l.name}</option>)}
             </Select>
           </div>
           <div>
-            <Label htmlFor="f-state">State</Label>
-            <Select id="f-state" value={filters.state} onChange={(e) => set("state", e.target.value)}>
-              <option value="">All states</option>
-              {states.map((s) => <option key={s} value={s}>{stateName(s)}</option>)}
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="f-level">Experience</Label>
-            <Select id="f-level" value={filters.level} onChange={(e) => set("level", e.target.value)}>
-              <option value="">Any experience</option>
+            <Label htmlFor="f-level" className="sr-only">Career stage or experience</Label>
+            <Select id="f-level" value={filters.level} onChange={(e) => set("level", e.target.value)} className={cn(CONTROL, "sm:w-44")}>
+              <option value="">Any stage</option>
               <optgroup label="Career stage">
                 {STAGES.map((s) => <option key={s.key} value={`stage:${s.key}`}>{s.label}</option>)}
               </optgroup>
@@ -138,50 +146,55 @@ export function PeopleDirectory({
               </optgroup>
             </Select>
           </div>
+        </div>
+        <button
+          type="button"
+          aria-expanded={moreOpen}
+          aria-controls="more-filters"
+          onClick={() => setMoreOpen((o) => !o)}
+          className={cn(
+            "inline-flex h-10 items-center gap-1.5 self-start rounded-lg px-3 text-[13.5px] font-medium transition sm:self-auto",
+            moreOpen ? "bg-subtle text-ink" : "text-ink-2 hover:bg-subtle hover:text-ink",
+          )}
+        >
+          <SlidersHorizontal className="h-4 w-4" strokeWidth={1.75} />
+          More filters{moreCount > 0 && <span className="text-ink-3">· {moreCount}</span>}
+        </button>
+        </div>
+      </div>
+
+      {moreOpen && (
+        <div id="more-filters" className="mt-3 grid grid-cols-2 gap-3 border-t border-line pt-4 sm:flex sm:flex-wrap sm:items-end">
           <div>
-            <Label htmlFor="f-avail">Availability</Label>
-            <Select id="f-avail" value={filters.availability} onChange={(e) => set("availability", e.target.value as Availability | "")}>
+            <Label htmlFor="f-state" className="text-xs text-ink-3">State</Label>
+            <Select id="f-state" value={filters.state} onChange={(e) => set("state", e.target.value)} className={cn(CONTROL, "sm:w-44")}>
+              <option value="">All states</option>
+              {states.map((s) => <option key={s} value={s}>{stateName(s)}</option>)}
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="f-avail" className="text-xs text-ink-3">Availability</Label>
+            <Select id="f-avail" value={filters.availability} onChange={(e) => set("availability", e.target.value as Availability | "")} className={cn(CONTROL, "sm:w-44")}>
               <option value="">Any availability</option>
               {AVAILABILITY.map((x) => <option key={x} value={x}>{AVAILABILITY_LABEL[x]}</option>)}
             </Select>
           </div>
+          <div>
+            <Label htmlFor="f-sort" className="text-xs text-ink-3">Sort</Label>
+            <Select id="f-sort" value={filters.sort} onChange={(e) => set("sort", e.target.value as DirectoryFilters["sort"])} className={cn(CONTROL, "sm:w-48")}>
+              <option value="relevant">{signedIn ? "Most relevant to you" : "Featured first"}</option>
+              <option value="experience">Most experienced</option>
+              <option value="name">Name</option>
+            </Select>
+          </div>
+          <label className="col-span-2 inline-flex h-10 cursor-pointer items-center gap-2 text-[13.5px] text-ink-2 sm:col-span-1">
+            <input type="checkbox" checked={filters.mentors} onChange={() => set("mentors", !filters.mentors)} className="h-4 w-4 rounded border-line-strong accent-navy" />
+            Open to mentoring
+          </label>
         </div>
-      </div>
+      )}
 
-      <div className="mb-6 mt-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            aria-pressed={filters.mentors}
-            onClick={() => set("mentors", !filters.mentors)}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] transition",
-              filters.mentors ? "border-navy bg-navy text-white" : "border-line-strong bg-surface text-ink-2 hover:border-ink-4 hover:text-ink",
-            )}
-          >
-            <Sprout className="h-3.5 w-3.5" strokeWidth={1.75} /> Open to mentoring
-          </button>
-          <p className="text-[13px] text-ink-3" aria-live="polite">
-            <span className="font-medium text-ink-2">{pluralize(results.length, "professional")}</span>
-            {filters.line && <> in {lineName(filters.line)}</>}
-            {filters.state && <> · {stateName(filters.state)}</>}
-            {filters.level && <> · {levelLabel(filters.level)}</>}
-          </p>
-          {active && (
-            <Button variant="ghost" size="xs" onClick={clear}>
-              <X className="h-3.5 w-3.5" /> Clear
-            </Button>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="f-sort" className="mb-0 text-xs text-ink-3">Sort</Label>
-          <Select id="f-sort" value={filters.sort} onChange={(e) => set("sort", e.target.value as DirectoryFilters["sort"])} className="h-8 w-auto text-[13px]">
-            <option value="relevant">{signedIn ? "Most relevant to you" : "Featured first"}</option>
-            <option value="experience">Most experienced</option>
-            <option value="name">Name</option>
-          </Select>
-        </div>
-      </div>
+      <div className="mt-4" />
 
       {results.length === 0 ? (
         <EmptyState
@@ -201,20 +214,24 @@ export function PeopleDirectory({
         />
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {shown.map((m, i) => (
-              <MemberCard
-                key={m.profile.userId}
-                profile={m.profile}
-                name={m.name}
-                mutual={m.mutual}
-                isSelf={m.isSelf}
-                reason={signedIn ? sharedReason(m.shared) : undefined}
-                signedIn={signedIn}
-                className={i < PAGE ? "animate-rise" : undefined}
-              />
-            ))}
-          </div>
+          <ul className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
+            {shown.map((m) => {
+              const suggested = showSuggested && suggestedIds.includes(m.profile.userId);
+              const reason = signedIn ? sharedReason(m.shared) : undefined;
+              return (
+                <li key={m.profile.userId} className="border-b border-line">
+                  <MemberCard
+                    profile={m.profile}
+                    name={m.name}
+                    mutual={m.mutual}
+                    isSelf={m.isSelf}
+                    reason={suggested && signedIn ? ["Suggested for you", reason].filter(Boolean).join(" · ") : reason}
+                    signedIn={signedIn}
+                  />
+                </li>
+              );
+            })}
+          </ul>
           {results.length > limit && (
             <div className="mt-8 flex justify-center">
               <Button variant="secondary" onClick={() => setLimit((l) => l + PAGE)}>
@@ -226,16 +243,12 @@ export function PeopleDirectory({
       )}
 
       {!signedIn && hiddenCount > 0 && results.length > 0 && (
-        <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-line bg-subtle/60 p-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex gap-3">
-            <EyeOff className="mt-0.5 h-4 w-4 shrink-0 text-ink-3" strokeWidth={1.75} />
-            <div>
-              <p className="text-[14.5px] font-medium text-ink">{pluralize(hiddenCount, "more professional")} share their portfolio with members only.</p>
-              <p className="mt-0.5 text-[13px] text-ink-3">Members decide who sees their profile. Join to see the full directory, connect and request mentorship.</p>
-            </div>
-          </div>
-          <Button variant="primary" size="sm" onClick={onJoin} className="shrink-0">Join the network</Button>
-        </div>
+        <p className="mt-8 text-[13.5px] text-ink-3">
+          {pluralize(hiddenCount, "more professional")} share their portfolio with members only.{" "}
+          <button type="button" onClick={onJoin} className="font-medium text-ink-2 underline decoration-line-strong underline-offset-4 hover:text-ink">
+            Join to see everyone
+          </button>
+        </p>
       )}
     </div>
   );
