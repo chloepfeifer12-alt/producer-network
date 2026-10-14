@@ -176,7 +176,7 @@ tests/e2e/             Playwright journeys
 
 - `npm run typecheck`: passes with 0 errors.
 - `npm run lint`: passes with 0 errors.
-- `npm run build`: succeeds; 70+ routes compile.
+- `npm run build`: succeeds; 55 page templates (80+ routes once career-path, legal and resource pages are generated).
 - Route crawl of every page as visitor, producer, aspiring producer, employer and admin: no runtime or console errors; wrong-role access shows the access panel.
 - Playwright (`tests/e2e`), **7/7 passing**:
   1. Producer: create account → browse companies → save → apply with consent → see it in My jobs.
