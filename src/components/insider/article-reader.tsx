@@ -12,10 +12,10 @@ import { OrgLogo } from "@/components/brand/org-logo";
 import { Avatar } from "@/components/ui/avatar";
 import { ButtonLink } from "@/components/ui/button";
 import { ArticleBody } from "./article-body";
-import { ArticleArt, articleDate, authorLabel, SectionLabel, StoryHeadline, StoryMeta } from "./parts";
+import { articleDate, authorLabel, SectionLabel } from "./parts";
 import { ReadingProgress } from "./reading-progress";
 import { DEMO_NOTE, SECTION_LABEL, sectionHref } from "./sections";
-import { Wrap } from "./story-layouts";
+import { StoryList, Wrap } from "./story-list";
 
 export function ArticleReader({ slug }: { slug: string }) {
   const db = useDb();
@@ -47,7 +47,8 @@ function Reader({ article }: { article: Article }) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const related = useMemo(() => relatedArticles(db, article, 3), [db, article]);
   const orgs = useMemo(
-    () => article.relatedOrgIds.map((id) => db.organizations.find((o) => o.id === id)).filter((o): o is NonNullable<typeof o> => !!o && o.listingStatus === "approved"),
+    () => article.relatedOrgIds.map((id) => db.organizations.find((o) => o.id === id)).filter((o): o is NonNullable<typeof o> => !!o && o.listingStatus === "approved")
+        .slice(0, 3),
     [db.organizations, article.relatedOrgIds],
   );
   const member = useMemo(() => {
@@ -64,7 +65,7 @@ function Reader({ article }: { article: Article }) {
     <article className="pb-24">
       <ReadingProgress target={bodyRef} />
 
-      <div className="relative h-[clamp(220px,42vh,520px)] w-full overflow-hidden border-b border-line">
+      <div className="relative h-[clamp(200px,34vh,360px)] w-full overflow-hidden border-b border-line">
         <CoverArt seed={article.id} variant={article.art.variant} hue={article.art.hue} ground={article.art.ground} label={`Illustration for “${article.title}”`} />
       </div>
 
@@ -78,8 +79,8 @@ function Reader({ article }: { article: Article }) {
               <span aria-hidden className="h-3 w-px bg-line-strong" />
               <SectionLabel article={article} />
             </nav>
-            <h1 className="mt-5 font-display text-[38px] leading-[1.03] tracking-[-0.03em] text-ink text-balance sm:text-[54px] lg:text-[66px]">{article.title}</h1>
-            <p className="mt-6 max-w-[60ch] font-display text-[21px] leading-[1.45] text-ink-2 sm:text-[24px]">{article.dek}</p>
+            <h1 className="mt-5 font-display text-[34px] leading-[1.05] tracking-[-0.025em] text-ink text-balance sm:text-[44px] lg:text-[54px]">{article.title}</h1>
+            <p className="mt-6 max-w-[60ch] font-display text-[19px] leading-[1.45] text-ink-2 sm:text-[21px]">{article.dek}</p>
           </div>
         </header>
 
@@ -108,7 +109,6 @@ function Reader({ article }: { article: Article }) {
               </span>
               {article.readMinutes} min read
             </p>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold-ink sm:ml-auto">Fictional · demo editorial</p>
           </div>
         </div>
 
@@ -185,44 +185,35 @@ function Reader({ article }: { article: Article }) {
                 </section>
               )}
 
-              <section aria-labelledby="more-in-section" className="border-t-2 border-ink pt-4">
-                <h2 id="more-in-section" className="font-display text-[15px] italic text-ink-3">
-                  More in
-                </h2>
-                <Link href={sectionHref(article.section)} className="group mt-1 inline-flex items-center gap-2 font-display text-[24px] leading-tight text-ink">
-                  {SECTION_LABEL[article.section]}
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              </section>
             </div>
           </aside>
         </div>
       </Wrap>
 
-      {related.length > 0 && (
-        <section aria-labelledby="continue-reading" className="mt-24">
-          <Wrap>
-            <div className="flex flex-wrap items-end justify-between gap-4 border-t-2 border-ink pt-5">
-              <h2 id="continue-reading" className="font-display text-[32px] leading-none tracking-[-0.02em] text-ink sm:text-[38px]">
-                Continue reading
-              </h2>
-              <Link href="/insider" className="group inline-flex items-center gap-1.5 text-[13px] font-medium text-ink-2 hover:text-ink">
-                The full issue <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-              </Link>
+      <section aria-labelledby="continue-reading" className="mt-20 sm:mt-24">
+        <Wrap>
+          <div className="lg:grid lg:grid-cols-12 lg:gap-x-12">
+            <div className="lg:col-span-8 xl:col-span-7 xl:col-start-2">
+              {related.length > 0 && (
+                <>
+                  <h2 id="continue-reading" className="font-display text-[28px] leading-none tracking-[-0.015em] text-ink sm:text-[30px]">
+                    Continue reading
+                  </h2>
+                  <StoryList articles={related.slice(0, 3)} stacked className="mt-6" />
+                </>
+              )}
+              <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3">
+                <Link href={sectionHref(article.section)} className="group inline-flex items-center gap-1.5 text-[13.5px] font-medium text-ink-2 hover:text-ink">
+                  More in {SECTION_LABEL[article.section]} <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+                <Link href="/insider" className="group inline-flex items-center gap-1.5 text-[13.5px] font-medium text-ink-2 hover:text-ink">
+                  Back to The Insider <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </div>
             </div>
-            <div className="mt-8 grid gap-y-12 md:-mx-8 md:grid-cols-3 md:divide-x md:divide-line">
-              {related.map((a) => (
-                <article key={a.id} className="group relative md:px-8">
-                  <ArticleArt article={a} ratio="aspect-[3/2]" />
-                  <SectionLabel article={a} className="mt-5 block" />
-                  <StoryHeadline article={a} className="mt-2 text-[22px] leading-[1.14] tracking-[-0.012em]" />
-                  <StoryMeta article={a} className="mt-3" />
-                </article>
-              ))}
-            </div>
-          </Wrap>
-        </section>
-      )}
+          </div>
+        </Wrap>
+      </section>
     </article>
   );
 }

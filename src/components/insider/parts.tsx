@@ -47,38 +47,6 @@ export function articleDate(a: Article, long = false) {
   return formatDate(a.publishedAt, long ? { month: "long", day: "numeric", year: "numeric" } : { month: "short", day: "numeric" });
 }
 
-/** Author · read time (· date). Authors that are the house byline read "The Insider". */
-export function StoryMeta({ article, date = true, author = true, className }: { article: Article; date?: boolean; author?: boolean; className?: string }) {
-  const parts: ReactNode[] = [];
-  if (author)
-    parts.push(
-      <span key="a" className="font-medium text-ink-2">
-        {authorLabel(article)}
-      </span>,
-    );
-  parts.push(<span key="r">{article.readMinutes} min read</span>);
-  if (date)
-    parts.push(
-      <time key="d" dateTime={article.publishedAt}>
-        {articleDate(article)}
-      </time>,
-    );
-  return (
-    <p className={cn("flex flex-wrap items-center gap-x-2 text-[12.5px] text-ink-3", className)}>
-      {parts.map((p, i) => (
-        <span key={i} className="inline-flex items-center gap-2">
-          {i > 0 && (
-            <span aria-hidden className="text-ink-4">
-              ·
-            </span>
-          )}
-          {p}
-        </span>
-      ))}
-    </p>
-  );
-}
-
 export function authorLabel(a: Article) {
   return a.authorName.startsWith("The Insider") ? "The Insider desk" : a.authorName;
 }
@@ -92,10 +60,4 @@ export function StoryHeadline({ article, as: Tag = "h3", className }: { article:
       </Link>
     </Tag>
   );
-}
-
-/** The first pull quote in an article body, if any. */
-export function leadQuote(a: Article) {
-  for (const b of a.body) if (b.type === "quote") return b;
-  return undefined;
 }

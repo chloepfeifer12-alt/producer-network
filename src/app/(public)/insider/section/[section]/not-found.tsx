@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/components/ui/button";
-import { Wrap } from "@/components/insider/story-layouts";
+import { Wrap } from "@/components/insider/story-list";
 
 export default function InsiderSectionNotFound() {
   return (

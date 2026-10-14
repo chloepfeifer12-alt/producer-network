@@ -16,10 +16,6 @@ export function sectionHref(s: InsiderSection) {
   return `/insider/section/${sectionSlug(s)}`;
 }
 
-/** Ordinal shown beside a section name ("03"). */
-export function sectionNumber(s: InsiderSection) {
-  return String(SECTION_ORDER.indexOf(s) + 1).padStart(2, "0");
-}
 
 export const SECTION_DEK: Record<InsiderSection, string> = {
   insights: "Patterns worth noticing across the industry, read from the prototype’s synthetic marketplace.",
@@ -40,3 +36,15 @@ export function issueMonth() {
 }
 
 export const DEMO_NOTE = `All Insider content is fictional demo editorial created for the ${brand.name} prototype — not news, endorsements, or advice.`;
+
+/** Short section names for chips and list labels. */
+export const SECTION_SHORT: Record<InsiderSection, string> = {
+  insights: "Insights",
+  career_guides: "Career Guides",
+  leadership: "Leadership",
+  interviews: "Interviews",
+  education: "Education",
+  emerging: "Emerging",
+  events: "Events",
+  spotlight: "Spotlight",
+};

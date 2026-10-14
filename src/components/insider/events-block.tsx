@@ -17,7 +17,7 @@ import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils/cn";
 
 /** Upcoming Network events as a dated listing, with RSVP for signed-in members. */
-export function EventsListing({ limit = 5 }: { limit?: number }) {
+export function EventsListing({ limit = 5, compact = false }: { limit?: number; compact?: boolean }) {
   const db = useDb();
   const hydrated = useHydrated();
   const user = useCurrentUser();
@@ -34,7 +34,7 @@ export function EventsListing({ limit = 5 }: { limit?: number }) {
   if (!hydrated) {
     return (
       <div className="divide-y divide-line border-t border-line">
-        {Array.from({ length: 4 }).map((_, i) => (
+        {Array.from({ length: Math.min(limit, 4) }).map((_, i) => (
           <div key={i} className="flex gap-6 py-5">
             <Skeleton className="h-14 w-14" />
             <div className="flex-1 space-y-2">
@@ -78,19 +78,25 @@ export function EventsListing({ limit = 5 }: { limit?: number }) {
 
   return (
     <>
-      <ol className="border-t border-ink">
+      <ol className="border-t border-line">
         {events.map((e) => {
           const d = formatEventDate(e.startsAt);
           const going = !!user && e.attendees.includes(user.id);
           return (
-            <li key={e.id} className="grid grid-cols-[56px_minmax(0,1fr)] gap-x-5 gap-y-3 border-b border-line py-5 sm:grid-cols-[64px_minmax(0,1fr)_auto] sm:items-center">
-              <div className="text-center leading-none">
+            <li
+              key={e.id}
+              className={cn(
+                "grid grid-cols-[52px_minmax(0,1fr)] gap-x-5 gap-y-3 border-b border-line sm:grid-cols-[64px_minmax(0,1fr)_auto] sm:items-center",
+                compact ? "py-4" : "py-5",
+              )}
+            >
+              <div className="leading-none">
                 <div className="text-[10.5px] font-semibold tracking-[0.14em] text-ink-3">{d.month}</div>
-                <div className="mt-1 font-display text-[34px] tabular-nums text-ink">{d.day}</div>
+                <div className={cn("mt-1 font-display tabular-nums text-ink", compact ? "text-[26px]" : "text-[32px]")}>{d.day}</div>
               </div>
               <div className="min-w-0">
-                <h4 className="text-[15.5px] font-semibold tracking-[-0.01em] text-ink">{e.title}</h4>
-                <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12.5px] text-ink-3">
+                <h3 className="text-[15.5px] font-semibold tracking-[-0.01em] text-ink">{e.title}</h3>
+                <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px] text-ink-3">
                   <span>
                     {d.weekday} · {d.time}
                   </span>
@@ -102,12 +108,14 @@ export function EventsListing({ limit = 5 }: { limit?: number }) {
                     {e.location}
                   </span>
                 </p>
-                <p className="mt-1 text-[12.5px] text-ink-4">
-                  Hosted by {e.host} · {pluralize(e.attendees.length, "member")} going
-                </p>
+                {!compact && (
+                  <p className="mt-1 text-[12.5px] text-ink-4">
+                    Hosted by {e.host} · {pluralize(e.attendees.length, "member")} going
+                  </p>
+                )}
               </div>
               <div className="col-start-2 sm:col-start-3">
-                <Button size="sm" variant={going ? "secondary" : "primary"} aria-pressed={going} onClick={() => onRsvp(e.id, going, e.title)} className={cn("min-w-[104px]", going && "text-success")}>
+                <Button size="sm" variant={going ? "secondary" : "primary"} aria-pressed={going} onClick={() => onRsvp(e.id, going, e.title)} className={cn("min-w-[96px]", going && "text-success")}>
                   {going ? (
                     <>
                       <Check className="h-3.5 w-3.5" strokeWidth={2} /> Going
@@ -121,11 +129,8 @@ export function EventsListing({ limit = 5 }: { limit?: number }) {
           );
         })}
       </ol>
-      <Link
-        href={user && can(user, "network:participate") ? "/network/events" : "/community"}
-        className="group mt-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-ink-2 hover:text-ink"
-      >
-        {user && can(user, "network:participate") ? "Your events calendar" : "Explore the community"} <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+      <Link href="/network/events" className="group mt-5 inline-flex items-center gap-1.5 text-[13.5px] font-medium text-ink-2 hover:text-ink">
+        All events <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
       </Link>
 
       <Dialog
