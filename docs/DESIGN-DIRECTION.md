@@ -34,3 +34,16 @@ Linear-level polish, Monocle-inspired editorial sophistication, high-end profess
 
 ## Compliance (unchanged, mandatory)
 See docs/CONVENTIONS.md. Licenses are always "Self-reported — Not verified". Compensation shown only as disclosed. W-2 vs independent contractor always distinct. Sponsored always labeled and separate. No fabricated news or endorsements: every article, interview and spotlight is labeled fictional/demo. Industry Fit is deterministic preference matching, never an employment decision, never uses protected characteristics, never verifies licenses.
+
+## Calm by default (v2 — supersedes density choices above)
+
+Feedback from the founder: the product felt like "a lot all in one place". Every page now follows these rules:
+
+1. **One job per page.** The top of each page states what the page is for and leads with ONE primary element (a search, a briefing, a cover story). Nothing competes with it above the fold.
+2. **Four sections maximum** below the lead. If there is more, it moves behind a tab, a "Show more", or a link to its own page.
+3. **Choose, then reveal.** Group related modules behind a single tabbed block (e.g. "For you: Roles · Companies · People") instead of stacking them. Default to the most useful tab.
+4. **Text before imagery.** Cover art is an accent, not a billboard: max ~240px tall on index pages, and never more than one large image per screen. Lists of stories, companies and people default to compact text rows.
+5. **Fewer containers.** Prefer whitespace and hairline rules. No more than one bordered "card" style per section.
+6. **Consistent home for personal items.** Saved roles, applications and requests live in one compact "Your activity" strip or panel, always in the same place.
+7. **Generous rhythm.** Section spacing ~96px desktop / 64px mobile; body 15–16px; headline sizes reduced one step from v1 (page titles 36–48px, not 60–80px).
+8. **Fewer badges.** One label per item max beyond the W-2/1099 kind badge. Demo labeling stays honest but appears once per page/object.

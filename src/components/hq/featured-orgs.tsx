@@ -6,6 +6,7 @@ import { ORG_CATEGORY_LABEL } from "@/lib/data/taxonomy";
 import { CoverArt, variantFor } from "@/components/brand/cover-art";
 import { OrgLogo } from "@/components/brand/org-logo";
 import { SectionHead } from "@/components/editorial";
+import { BareHead } from "./calm";
 import { EmptyState } from "@/components/ui/feedback";
 import { ButtonLink } from "@/components/ui/button";
 import { RecruitingDot } from "@/components/domain/org-card";
@@ -81,10 +82,10 @@ function SideOrg({ f, className }: { f: FeaturedOrg; className?: string }) {
   );
 }
 
-export function FeaturedOrganizations({ items, title, dek }: { items: FeaturedOrg[]; title: string; dek: string }) {
+export function FeaturedOrganizations({ items, title, dek, bare }: { items: FeaturedOrg[]; title: string; dek: string; bare?: boolean }) {
   return (
     <section aria-label="Organizations worth discovering">
-      <SectionHead kicker="Discover" title={title} dek={dek} href="/discover" linkLabel="Explore Discover" />
+      {bare ? <BareHead dek={dek} href="/discover" label="Explore Discover" /> : <SectionHead kicker="Discover" title={title} dek={dek} href="/discover" linkLabel="Explore Discover" />}
       {items.length === 0 ? (
         <EmptyState
           title="You're following every organization we'd suggest"

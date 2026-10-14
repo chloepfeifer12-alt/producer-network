@@ -227,25 +227,20 @@ export function OpportunityMarketplace() {
             <FilterPill label="Category" count={filters.lines?.length} onClear={() => set({ lines: [] })} width={340}>
               <GroupedLineFacet value={filters.lines ?? []} onChange={(v) => set({ lines: v })} count={(l) => facetCount("lines", [l])} />
             </FilterPill>
-            <FilterPill label="Job type" count={filters.kind?.length} onClear={() => set({ kind: [] })}>
-              <FacetList ariaLabel="Job type" options={opts("kind", KINDS, (v) => KIND_LABEL[v], (v) => ({ description: KIND_DESC[v] }))} value={filters.kind ?? []} onChange={(v) => set({ kind: v })} />
-            </FilterPill>
             <FilterPill label="Work arrangement" count={filters.arrangement?.length} onClear={() => set({ arr: [] })} width={260}>
               <FacetList ariaLabel="Work arrangement" options={opts("arrangement", ARRANGEMENTS, (v) => ARRANGEMENT_LABEL[v])} value={filters.arrangement ?? []} onChange={(v) => set({ arr: v })} />
             </FilterPill>
             <FilterPill label="Experience" count={filters.experience?.length} onClear={() => set({ exp: [] })} width={260}>
               <FacetList ariaLabel="Experience level" options={opts("experience", EXPERIENCE, (v) => EXPERIENCE_LABEL[v])} value={filters.experience ?? []} onChange={(v) => set({ exp: v })} />
             </FilterPill>
-            <FilterPill label="Compensation type" count={filters.comp?.length} onClear={() => set({ comp: [] })}>
-              <FacetList ariaLabel="Compensation type" options={opts("comp", COMP, (v) => COMP_LABEL[v], (v) => ({ description: COMP_DESC[v] }))} value={filters.comp ?? []} onChange={(v) => set({ comp: v })} />
-            </FilterPill>
             <TogglePill label="Training provided" pressed={!!filters.training} onChange={(v) => set({ training: v })} icon={<GraduationCap className="h-3.5 w-3.5" strokeWidth={1.75} />} />
-            <FilterPill label="Leads" count={filters.leads?.length} onClear={() => set({ leads: [] })}>
-              <FacetList ariaLabel="Leads policy" options={opts("leads", LEADS, (v) => LEADS_LABEL[v])} value={filters.leads ?? []} onChange={(v) => set({ leads: v })} />
-            </FilterPill>
-            <FilterPill label="Career category" count={filters.category?.length} onClear={() => set({ cat: [] })} width={280}>
-              <FacetList ariaLabel="Career category" options={opts("category", CATEGORIES, (v) => CATEGORY_LABEL[v])} value={filters.category ?? []} onChange={(v) => set({ cat: v })} />
-            </FilterPill>
+            <button
+              type="button"
+              onClick={() => setDrawer(true)}
+              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3.5 text-[13px] text-ink-2 transition hover:border-ink-3 hover:text-ink"
+            >
+              <ListFilter className="h-3.5 w-3.5" strokeWidth={2} /> More filters
+            </button>
             {filterCount > 0 && (
               <button type="button" onClick={clearFilters} className="ml-1 rounded px-1.5 py-1 text-[13px] font-medium text-ink-3 underline-offset-4 hover:text-ink hover:underline">
                 Clear filters

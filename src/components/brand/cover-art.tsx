@@ -14,7 +14,10 @@ export function CoverArt({
   ground,
   className,
   label,
+  intensity = 0.7,
 }: {
+  /** 0–1. Artwork is an accent; keep it quiet by default. */
+  intensity?: number;
   seed: string;
   variant: CoverVariant;
   hue: string;
@@ -103,7 +106,7 @@ export function CoverArt({
       aria-hidden={label ? undefined : true}
       style={{ background: ground }}
     >
-      {shapes}
+      <g opacity={intensity}>{shapes}</g>
     </svg>
   );
 }

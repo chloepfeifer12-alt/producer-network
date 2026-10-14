@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Avatar } from "@/components/ui/avatar";
 import { SectionHead } from "@/components/editorial";
+import { BareHead } from "./calm";
 import { EmptyState } from "@/components/ui/feedback";
 import { ButtonLink } from "@/components/ui/button";
 import { ConnectionAction } from "@/components/network/connection-action";
@@ -26,7 +27,7 @@ function PersonRow({ p, action, detail }: { p: PersonPick; action: React.ReactNo
   );
 }
 
-export function PeopleToMeet({ suggestions, mentorPicks, mentorsFirst, showMentors = true }: { suggestions: PersonPick[]; mentorPicks: PersonPick[]; mentorsFirst?: boolean; showMentors?: boolean }) {
+export function PeopleToMeet({ suggestions, mentorPicks, mentorsFirst, showMentors = true, bare }: { suggestions: PersonPick[]; mentorPicks: PersonPick[]; mentorsFirst?: boolean; showMentors?: boolean; bare?: boolean }) {
   const connect = (
     <div key="connect">
       <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-3">Professionals to connect with</div>
@@ -69,7 +70,7 @@ export function PeopleToMeet({ suggestions, mentorPicks, mentorsFirst, showMento
 
   return (
     <section aria-label="People">
-      <SectionHead kicker="People" title={mentorsFirst ? "People who can help you start" : "Your next good conversation"} href="/people" linkLabel="Open People" size="sm" />
+      {bare ? <BareHead dek={mentorsFirst ? "Mentors and members who can help you get started." : "Members who share your focus, and mentors who make time."} href="/people" label="Open People" /> : <SectionHead kicker="People" title={mentorsFirst ? "People who can help you start" : "Your next good conversation"} href="/people" linkLabel="Open People" size="sm" />}
       <div className="space-y-9">{mentorsFirst ? [mentorBlock, connect] : [connect, mentorBlock]}</div>
     </section>
   );

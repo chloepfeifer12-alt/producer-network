@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Check, MapPin } from "lucide-react";
 import { OrgLogo } from "@/components/brand/org-logo";
 import { SectionHead } from "@/components/editorial";
+import { BareHead } from "./calm";
 import { KindBadge } from "@/components/domain/badges";
 import { SaveButton } from "@/components/domain/save-button";
 import { opportunityLocation } from "@/components/domain/opportunity-card";
@@ -64,10 +65,10 @@ function OppRow({ pick }: { pick: OppPick }) {
   );
 }
 
-export function OpportunitiesForYou({ picks, title, dek, usesFit }: { picks: OppPick[]; title: string; dek: string; usesFit: boolean }) {
+export function OpportunitiesForYou({ picks, title, dek, usesFit, bare }: { picks: OppPick[]; title: string; dek: string; usesFit: boolean; bare?: boolean }) {
   return (
     <section aria-label="Opportunities for you">
-      <SectionHead kicker="Opportunities" title={title} dek={dek} href="/opportunities" linkLabel="All opportunities" size="sm" />
+      {bare ? <BareHead dek={dek} href="/opportunities" label="All opportunities" /> : <SectionHead kicker="Opportunities" title={title} dek={dek} href="/opportunities" linkLabel="All opportunities" size="sm" />}
       {picks.length ? (
         <>
           <ul className="divide-y divide-line border-b border-line">
