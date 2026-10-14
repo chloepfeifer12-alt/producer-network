@@ -42,12 +42,13 @@ export function RequireRole({
 }
 
 function AccessPanel({ area, signedIn, suspended }: { area: string; signedIn: boolean; suspended?: boolean }) {
+  const Area = area.charAt(0).toUpperCase() + area.slice(1);
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-xl flex-col justify-center px-6 py-16">
       <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-surface ring-1 ring-line">
         <Lock className="h-5 w-5 text-ink-3" />
       </div>
-      <h1 className="font-display text-3xl">{suspended ? "This demo account is suspended" : signedIn ? `${area} isn't available for this role` : `Choose a demo role to open ${area}`}</h1>
+      <h1 className="font-display text-3xl">{suspended ? "This demo account is suspended" : signedIn ? `${Area} isn't available for this role` : `Choose a demo role to open ${area}`}</h1>
       <p className="mt-3 text-[15px] leading-relaxed text-ink-3">
         {signedIn
           ? `Access is role-based. Switch to a persona with permission for ${area.toLowerCase()} — in production this would be enforced by server-side authorization, not this screen.`

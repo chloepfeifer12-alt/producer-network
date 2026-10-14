@@ -225,7 +225,7 @@ function ProfileView({ org, preview }: { org: Organization; preview: boolean }) 
             )}
 
             {/* Specialties */}
-            <DetailSection id="specialties" title="Insurance specialties">
+            <DetailSection id="specialties" title="Insurance & financial services specialties">
               <div className="grid gap-3 sm:grid-cols-2">
                 {org.lines.map((l) => {
                   const line = LINE_BY_SLUG[l];

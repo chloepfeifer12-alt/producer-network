@@ -13,12 +13,13 @@ const TONES = [
   ["#E9E3E6", "#5C3347"],
 ];
 
-export function Avatar({ name, tone = 0, size = 40, className, ring }: { name: string; tone?: number; size?: number; className?: string; ring?: boolean }) {
+export function Avatar({ name, tone = 0, size = 40, className, ring, decorative }: { name: string; tone?: number; size?: number; className?: string; ring?: boolean; decorative?: boolean }) {
   const [bg, fg] = TONES[Math.abs(tone) % TONES.length]!;
   return (
     <span
-      role="img"
-      aria-label={name}
+      role={decorative ? undefined : "img"}
+      aria-label={decorative ? undefined : name}
+      aria-hidden={decorative || undefined}
       className={cn("inline-flex shrink-0 select-none items-center justify-center rounded-full font-semibold", ring && "ring-2 ring-surface", className)}
       style={{ width: size, height: size, background: bg, color: fg, fontSize: Math.max(10, size * 0.36), letterSpacing: "-0.02em" }}
     >

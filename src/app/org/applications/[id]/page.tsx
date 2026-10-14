@@ -79,7 +79,7 @@ function ReviewBody({ ctx, app }: { ctx: OrgContext; app: Application }) {
         breadcrumbs={[{ href: "/org/pipeline", label: "Pipeline" }, { label: name }]}
         title={
           <span className="flex items-center gap-4">
-            <Avatar name={name} tone={profile?.avatarTone ?? 0} size={52} className="hidden sm:inline-flex" />
+            <Avatar name={name} tone={profile?.avatarTone ?? 0} size={52} className="hidden sm:inline-flex" decorative />
             <span>{name}</span>
           </span>
         }

@@ -110,7 +110,7 @@ export function OrganizationCompare() {
       ),
     },
     {
-      label: "Insurance categories",
+      label: "Specialties",
       render: (o) => (
         <ul className="space-y-1">
           {o.lines.map((l) => (
