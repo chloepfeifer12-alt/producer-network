@@ -1,3 +1,18 @@
-export default function Home() {
-  return <div className="p-10 font-display text-4xl">Placeholder</div>;
+import { Hero } from "@/components/home/hero";
+import { Community, ExploreLines, FeaturedOpportunities, FeaturedOrganizations, FinalCta, ForOrganizations, PortalBand, Principles } from "@/components/home/sections";
+
+export default function HomePage() {
+  return (
+    <>
+      <Hero />
+      <FeaturedOpportunities />
+      <PortalBand />
+      <ExploreLines />
+      <FeaturedOrganizations />
+      <ForOrganizations />
+      <Community />
+      <Principles />
+      <FinalCta />
+    </>
+  );
 }

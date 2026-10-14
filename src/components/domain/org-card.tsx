@@ -44,7 +44,7 @@ export function OrgCard({ org, sponsored, openCount, className }: { org: Organiz
         <div className="absolute right-3 top-3 flex gap-1.5">{sponsored ? <SponsoredTag className="bg-surface/90" /> : <DemoTag>Fictional</DemoTag>}</div>
       </div>
       <div className="flex flex-1 flex-col px-5 pb-5">
-        <div className="-mt-7 mb-3"><OrgLogo brand={org.brand} name={org.name} size={52} className="ring-4 ring-surface" /></div>
+        <div className="relative z-[1] -mt-7 mb-3"><OrgLogo brand={org.brand} name={org.name} size={52} className="ring-4 ring-surface" /></div>
         <div className="text-xs font-medium uppercase tracking-[0.1em] text-ink-4">{ORG_CATEGORY_LABEL[org.category]}</div>
         <h3 className="mt-1 text-[16.5px] font-semibold leading-snug tracking-[-0.01em]">
           <Link href={`/organizations/${org.slug}`} className="after:absolute after:inset-0 focus-visible:outline-none">{org.name}</Link>
@@ -59,9 +59,11 @@ export function OrgCard({ org, sponsored, openCount, className }: { org: Organiz
           {org.lines.slice(0, 3).map((l) => <Tag key={l}>{lineName(l, true)}</Tag>)}
           {org.lines.length > 3 && <Tag>+{org.lines.length - 3}</Tag>}
         </div>
-        <div className="mt-auto flex items-center justify-between border-t border-line pt-4 mt-5">
-          <RecruitingDot status={org.recruitingStatus} />
-          {openCount != null && <span className="text-xs font-medium text-ink-2">{openCount} open {openCount === 1 ? "role" : "roles"}</span>}
+        <div className="mt-auto pt-5">
+          <div className="flex items-center justify-between border-t border-line pt-4">
+            <RecruitingDot status={org.recruitingStatus} />
+            {openCount != null && <span className="text-xs font-medium text-ink-2">{openCount} open {openCount === 1 ? "role" : "roles"}</span>}
+          </div>
         </div>
       </div>
     </article>

@@ -24,6 +24,10 @@ export function sendIntroduction(actor: User | null, orgId: string, userId: stri
       const eligible = discoverableCandidates(d).some((p) => p.userId === userId);
       invariant(eligible, "This member has not consented to recruiter contact.");
       invariant(!d.introductions.some((i) => i.orgId === orgId && i.userId === userId && i.status === "sent"), "You already have an open introduction with this member.");
+      if (opportunityId) {
+        const o = d.opportunities.find((x) => x.id === opportunityId);
+        invariant(o && o.orgId === orgId && o.status === "published", "Link a published listing from your organization.");
+      }
       const org = d.organizations.find((o) => o.id === orgId);
       invariant(org?.listingStatus === "approved", "Your organization must be approved before contacting members.");
       d.introductions.unshift({ id: newId("intro"), orgId, senderId: actor.id, userId, opportunityId, message: message.trim(), status: "sent", createdAt: nowISO() });

@@ -27,7 +27,8 @@ export function applicationsBetween(db: Database, orgId: string, userId: string)
   return db.applications.filter((a) => a.orgId === orgId && a.applicantId === userId && !a.withdrawn);
 }
 
-export function viewProfile(db: Database, viewer: User | null, profile: ProducerProfile): ProfileView {
+/** `applicationId` scopes an organization's view to the consent given on that specific application. */
+export function viewProfile(db: Database, viewer: User | null, profile: ProducerProfile, applicationId?: string): ProfileView {
   const owner = db.users.find((u) => u.id === profile.userId);
   const isSelf = viewer?.id === profile.userId;
   const base: ProfileView = { visible: false, hidden: [], showLicenses: false, licenses: [], showExperience: false, isSelf };
@@ -40,7 +41,25 @@ export function viewProfile(db: Database, viewer: User | null, profile: Producer
 
   // Organization viewer with an application from this member: share only what the applicant chose.
   if (viewer?.kind === "organization" && viewer.orgId) {
-    const app = applicationsBetween(db, viewer.orgId, profile.userId).sort((a, b) => b.submittedAt.localeCompare(a.submittedAt))[0];
+    const between = applicationsBetween(db, viewer.orgId, profile.userId);
+    const app = (applicationId ? between.find((a) => a.id === applicationId) : undefined) ?? between.sort((a, b) => b.submittedAt.localeCompare(a.submittedAt))[0];
+    // A New Producer Portal interest grants the same consent-scoped access as an application.
+    const interest = !app ? db.portalInterests.find((i) => i.orgId === viewer.orgId && i.userId === profile.userId && i.status !== "closed") : undefined;
+    if (!app && interest) {
+      const sh = interest.share;
+      const hidden: string[] = [];
+      if (!sh.licenses) hidden.push("License records were not shared with this introduction.");
+      if (!(sh.npn && profile.consent.shareNpnOnApply)) hidden.push("NPN was not shared with this introduction.");
+      if (!sh.contactEmail) hidden.push("Email was not shared.");
+      if (!sh.experience) hidden.push("Work history was not shared.");
+      return {
+        ...base, visible: true, hidden,
+        showLicenses: sh.licenses, licenses: sh.licenses ? profile.licenses : [],
+        npn: sh.npn && profile.consent.shareNpnOnApply ? profile.npn : undefined,
+        email: sh.contactEmail ? owner.email : undefined,
+        showExperience: sh.experience,
+      };
+    }
     if (app) {
       const hidden: string[] = [];
       if (!app.share.licenses) hidden.push("License records were not shared with this application.");

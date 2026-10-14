@@ -1,4 +1,4 @@
-import { Building2, ClipboardList, Crown, Gem, HeartPulse, House, Landmark, PiggyBank, Stethoscope, Umbrella, Users, Waves, type LucideProps } from "lucide-react";
+import { Building2, ChartLine, Compass, ClipboardList, Crown, Gem, HeartPulse, House, Landmark, PiggyBank, Stethoscope, Umbrella, Users, Waves, type LucideProps } from "lucide-react";
 import type { LineSlug } from "@/lib/data/types";
 
 const MAP: Record<LineSlug, React.ComponentType<LucideProps>> = {
@@ -14,6 +14,11 @@ const MAP: Record<LineSlug, React.ComponentType<LucideProps>> = {
   "surplus-lines": Waves,
   "claims-operations": ClipboardList,
   "agency-leadership": Crown,
+  "financial-planning": Compass,
+  "wealth-management": Gem,
+  "retirement-plans": PiggyBank,
+  "investments-securities": ChartLine,
+  "bank-financial-services": Landmark,
 };
 
 export function LineIcon({ line, ...props }: { line: LineSlug } & LucideProps) {

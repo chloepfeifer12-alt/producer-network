@@ -27,6 +27,7 @@ import type {
  */
 export const INSURANCE_LINES: InsuranceLine[] = [
   {
+    sector: "insurance",
     slug: "life",
     name: "Life Insurance",
     shortName: "Life",
@@ -40,6 +41,7 @@ export const INSURANCE_LINES: InsuranceLine[] = [
     licensingNote: "Typically requires a state life line of authority. Confirm requirements with your state.",
   },
   {
+    sector: "insurance",
     slug: "accident-health",
     name: "Accident & Health",
     shortName: "A&H",
@@ -53,6 +55,7 @@ export const INSURANCE_LINES: InsuranceLine[] = [
     licensingNote: "Typically requires a state accident & health (or sickness) line of authority.",
   },
   {
+    sector: "insurance",
     slug: "property-casualty",
     name: "Property & Casualty",
     shortName: "P&C",
@@ -66,6 +69,7 @@ export const INSURANCE_LINES: InsuranceLine[] = [
     licensingNote: "Typically requires property and casualty lines of authority.",
   },
   {
+    sector: "insurance",
     slug: "personal-lines",
     name: "Personal Lines",
     shortName: "Personal",
@@ -79,6 +83,7 @@ export const INSURANCE_LINES: InsuranceLine[] = [
     licensingNote: "Often requires a personal lines or P&C license depending on the state.",
   },
   {
+    sector: "insurance",
     slug: "commercial",
     name: "Commercial Insurance",
     shortName: "Commercial",
@@ -92,6 +97,7 @@ export const INSURANCE_LINES: InsuranceLine[] = [
     licensingNote: "Typically requires property and casualty lines of authority.",
   },
   {
+    sector: "insurance",
     slug: "medicare",
     name: "Medicare-Related Careers",
     shortName: "Medicare",
@@ -105,6 +111,7 @@ export const INSURANCE_LINES: InsuranceLine[] = [
     licensingNote: "Typically requires a health line of authority plus program-specific certifications, which change annually.",
   },
   {
+    sector: "insurance",
     slug: "annuities",
     name: "Annuities",
     shortName: "Annuities",
@@ -118,6 +125,7 @@ export const INSURANCE_LINES: InsuranceLine[] = [
     licensingNote: "Typically requires a life line of authority and state-specific annuity training.",
   },
   {
+    sector: "insurance",
     slug: "employee-benefits",
     name: "Employee Benefits",
     shortName: "Benefits",
@@ -131,6 +139,7 @@ export const INSURANCE_LINES: InsuranceLine[] = [
     licensingNote: "Typically requires life and accident & health lines of authority.",
   },
   {
+    sector: "insurance",
     slug: "specialty",
     name: "Specialty Insurance",
     shortName: "Specialty",
@@ -144,6 +153,7 @@ export const INSURANCE_LINES: InsuranceLine[] = [
     licensingNote: "Requirements vary by program; commonly P&C lines of authority.",
   },
   {
+    sector: "insurance",
     slug: "surplus-lines",
     name: "Surplus Lines",
     shortName: "E&S",
@@ -157,6 +167,7 @@ export const INSURANCE_LINES: InsuranceLine[] = [
     licensingNote: "Often requires a separate surplus lines license in addition to P&C authority.",
   },
   {
+    sector: "insurance",
     slug: "claims-operations",
     name: "Claims & Insurance Operations",
     shortName: "Claims & Ops",
@@ -170,6 +181,7 @@ export const INSURANCE_LINES: InsuranceLine[] = [
     licensingNote: "Many states require an adjuster license; operations roles often do not.",
   },
   {
+    sector: "insurance",
     slug: "agency-leadership",
     name: "Agency Leadership & Recruiting",
     shortName: "Leadership",
@@ -182,6 +194,76 @@ export const INSURANCE_LINES: InsuranceLine[] = [
     skills: ["Coaching", "Hiring and onboarding", "Operational leadership"],
     licensingNote: "Leadership roles often require the licenses held by the teams being led.",
   },
+  {
+    sector: "financial_services",
+    slug: "financial-planning",
+    name: "Financial Planning & Advisory",
+    shortName: "Planning",
+    icon: "Compass",
+    summary: "Help households build plans across saving, protection and retirement.",
+    description:
+      "Financial planning careers combine technical knowledge with long-term client relationships. Paraplanners, associate planners and lead advisors build and maintain plans that often include insurance, retirement and investment components.",
+    careerPaths: ["Paraplanner", "Associate planner", "Lead financial planner", "Practice owner"],
+    typicalRoles: ["Associate Financial Planner", "Paraplanner", "Client Service Associate"],
+    skills: ["Planning software", "Client discovery", "Plain-language explanation"],
+    licensingNote: "Roles may require state investment adviser representative registration (often via the Series 65 or 66) and/or insurance licenses. Professional designations are optional and earned separately.",
+  },
+  {
+    sector: "financial_services",
+    slug: "wealth-management",
+    name: "Wealth Management",
+    shortName: "Wealth",
+    icon: "Gem",
+    summary: "Serve families and business owners with complex financial lives.",
+    description:
+      "Wealth management teams coordinate investments, planning, insurance and estate considerations for clients with more complex needs. Careers range from client service and operations to advisor and team-lead roles.",
+    careerPaths: ["Client associate", "Associate advisor", "Wealth advisor", "Team lead"],
+    typicalRoles: ["Client Service Associate", "Associate Wealth Advisor", "Portfolio Operations Associate"],
+    skills: ["Relationship management", "Operational precision", "Team coordination"],
+    licensingNote: "Many roles require FINRA registrations sponsored by a firm and/or state registrations. Requirements vary by role and firm.",
+  },
+  {
+    sector: "financial_services",
+    slug: "retirement-plans",
+    name: "Retirement Plans",
+    shortName: "Retirement",
+    icon: "PiggyBank",
+    summary: "Support employer-sponsored retirement plans and participants.",
+    description:
+      "Retirement plan professionals help employers run workplace retirement plans and help participants understand their options. Roles include plan consultants, relationship managers, participant educators and plan administrators.",
+    careerPaths: ["Plan administrator", "Participant educator", "Plan consultant", "Relationship manager"],
+    typicalRoles: ["Retirement Plan Consultant", "Participant Education Specialist", "Plan Administrator"],
+    skills: ["Plan administration", "Group education", "Employer relationships"],
+    licensingNote: "Some roles require securities registrations or insurance licenses; administration roles often do not.",
+  },
+  {
+    sector: "financial_services",
+    slug: "investments-securities",
+    name: "Investments & Securities",
+    shortName: "Securities",
+    icon: "ChartLine",
+    summary: "Registered roles at broker-dealers and advisory firms.",
+    description:
+      "Securities careers include registered representatives, advisors and the operations and compliance teams that support them. Firms commonly sponsor registrations for new hires.",
+    careerPaths: ["Registered client associate", "Financial advisor", "Branch leader", "Compliance analyst"],
+    typicalRoles: ["Financial Advisor", "Registered Client Associate", "Compliance Analyst"],
+    skills: ["Regulatory discipline", "Client communication", "Product knowledge"],
+    licensingNote: "FINRA registrations (e.g., SIE plus Series 6 or 7, and state exams such as Series 63/65/66) generally require firm sponsorship. This is a general overview, not licensing advice.",
+  },
+  {
+    sector: "financial_services",
+    slug: "bank-financial-services",
+    name: "Bank & Credit Union Financial Services",
+    shortName: "Bank programs",
+    icon: "Landmark",
+    summary: "Insurance and investment programs inside banks and credit unions.",
+    description:
+      "Banks and credit unions offer insurance and investment services to their members through licensed bankers and program advisors. These roles blend branch relationships with structured, compliance-heavy processes.",
+    careerPaths: ["Licensed banker", "Program advisor", "Branch financial services manager"],
+    typicalRoles: ["Licensed Banker", "Credit Union Financial Advisor", "Insurance Program Specialist"],
+    skills: ["Referral partnerships", "Member service", "Compliance processes"],
+    licensingNote: "Typically requires insurance licenses and, for investment roles, firm-sponsored securities registrations.",
+  },
 ];
 
 export const LINE_BY_SLUG: Record<LineSlug, InsuranceLine> = Object.fromEntries(
@@ -192,6 +274,12 @@ export function lineName(slug: LineSlug, short = false) {
   const l = LINE_BY_SLUG[slug];
   return l ? (short ? l.shortName : l.name) : slug;
 }
+
+export const SECTOR_LABEL = { insurance: "Insurance", financial_services: "Financial services" } as const;
+export const LINES_BY_SECTOR = {
+  insurance: INSURANCE_LINES.filter((l) => l.sector === "insurance"),
+  financial_services: INSURANCE_LINES.filter((l) => l.sector === "financial_services"),
+};
 
 export const ARRANGEMENT_LABEL: Record<WorkArrangement, string> = {
   remote: "Remote",
@@ -261,6 +349,9 @@ export const ORG_CATEGORY_LABEL: Record<OrgCategory, string> = {
   mga: "MGA",
   claims_services: "Claims Services",
   agency_network: "Agency Network",
+  ria: "Registered Investment Adviser",
+  broker_dealer: "Broker-Dealer",
+  bank_program: "Bank / Credit Union Program",
 };
 
 export const ORG_CATEGORY_DESCRIPTION: Record<OrgCategory, string> = {
@@ -273,6 +364,9 @@ export const ORG_CATEGORY_DESCRIPTION: Record<OrgCategory, string> = {
   mga: "Managing general agents with delegated underwriting programs.",
   claims_services: "Independent adjusting, TPA and claims operations organizations.",
   agency_network: "Networks and alliances giving independent agencies shared resources.",
+  ria: "Advisory firms providing financial planning and investment advice to clients.",
+  broker_dealer: "Firms whose registered representatives offer securities products, often with advisor recruiting teams.",
+  bank_program: "Banks and credit unions offering insurance and investment services to members.",
 };
 
 export const RECRUITING_LABEL: Record<RecruitingStatus, string> = {
@@ -361,6 +455,12 @@ export const LINES_OF_AUTHORITY = [
   "Variable Life & Annuities",
   "Surplus Lines",
   "Adjuster",
+  "SIE (securities)",
+  "Series 6",
+  "Series 7",
+  "Series 63",
+  "Series 65",
+  "Series 66",
 ];
 
 export const US_STATES: { code: string; name: string }[] = [

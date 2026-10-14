@@ -4,7 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Bell, BookOpen, CalendarDays, Bookmark, Briefcase, Building2, ChartLine, Circle, Compass, CreditCard, ExternalLink, Flag, Gavel, Handshake,
+  Bell, BookOpen, CalendarDays, GraduationCap, Bookmark, Briefcase, Building2, ChartLine, Circle, Compass, CreditCard, ExternalLink, Flag, Gavel, Handshake,
   KanbanSquare, KeyRound, Layers, LayoutDashboard, Megaphone, Menu, MessageSquare, Receipt, ScrollText, Send, ShieldCheck,
   UserRound, Users, type LucideIcon,
 } from "lucide-react";
@@ -22,7 +22,7 @@ import { relativeDay } from "@/lib/utils/dates";
 import { cn } from "@/lib/utils/cn";
 
 const NAV_ICONS: Record<string, LucideIcon> = {
-  BookOpen, Bookmark, Briefcase, CalendarDays, Building2, ChartLine, Compass, CreditCard, Flag, Gavel, Handshake, KanbanSquare, KeyRound,
+  BookOpen, Bookmark, Briefcase, CalendarDays, GraduationCap, Building2, ChartLine, Compass, CreditCard, Flag, Gavel, Handshake, KanbanSquare, KeyRound,
   Layers, LayoutDashboard, Megaphone, MessageSquare, Receipt, ScrollText, Send, ShieldCheck, UserRound, Users,
 };
 

@@ -34,7 +34,7 @@ export function getApplicationFor(db: Database, viewer: User | null, appId: stri
 /** Strip organization-private fields before showing an application to its applicant. */
 export function applicantSafeView(a: Application): Omit<Application, "notes"> {
   const { notes: _notes, ...rest } = a;
-  return rest;
+  return { ...rest, activity: rest.activity.filter((x) => x.message !== "Added an internal note") };
 }
 
 /* ---------------- Commands ---------------- */
@@ -97,6 +97,7 @@ export function withdrawApplication(actor: User | null, appId: string) {
       a.activity.push({ id: newId("act"), at: nowISO(), actorId: actor.id, message: "Applicant withdrew the application" });
       const o = d.opportunities.find((x) => x.id === a.opportunityId);
       notifyOrg(d, a.orgId, "Application withdrawn", `${actor.name} withdrew from ${o?.title ?? "an opportunity"}.`);
+      audit(d, actor, "application.withdrawn", "application", a.id, o?.title ?? "");
     });
   });
 }

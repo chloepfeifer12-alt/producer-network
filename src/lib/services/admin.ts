@@ -52,8 +52,8 @@ export function returnOpportunity(actor: User | null, oppId: string, decision: "
   });
 }
 
-export function unpublishOpportunity(actor: User | null, oppId: string, note: string) {
-  return returnOpportunity(actor, oppId, "changes_requested", "misrepresentation", note);
+export function unpublishOpportunity(actor: User | null, oppId: string, note: string, reasonCode = "misrepresentation") {
+  return returnOpportunity(actor, oppId, "changes_requested", reasonCode, note);
 }
 
 /* ---------------- Organizations ---------------- */
@@ -118,11 +118,13 @@ export function setUserStatus(actor: User | null, userId: string, status: "activ
   return attempt(() => {
     assertCan(actor, "admin:manage_users");
     invariant(userId !== actor.id, "You can't change your own account status.");
+    invariant(note.trim().length >= 5, "Add a note explaining the decision.");
     commit((d) => {
       const u = findOrThrow(d.users, userId, "User");
       invariant(u.kind !== "admin" || actor.adminRole === "superadmin", "Only super-admins can change admin accounts.");
       u.status = status;
-      audit(d, actor, `user.${status === "active" ? "reactivated" : "suspended"}`, "user", userId, note || u.name);
+      notify(d, userId, status === "active" ? "Account reactivated" : "Account suspended", status === "active" ? "Your account is active again." : "Your account was suspended by the platform team. Contact support for details.", "/support");
+      audit(d, actor, `user.${status === "active" ? "reactivated" : "suspended"}`, "user", userId, `${u.name}: ${note.trim()}`);
     });
   });
 }
@@ -135,6 +137,14 @@ export function setSponsoredStatus(actor: User | null, id: string, status: Spons
     commit((d) => {
       const s = findOrThrow(d.sponsored, id, "Placement");
       const before = s.status;
+      const allowed: Record<SponsoredPlacement["status"], SponsoredPlacement["status"][]> = {
+        requested: ["active", "scheduled", "ended"],
+        scheduled: ["active", "paused", "ended"],
+        active: ["paused", "ended"],
+        paused: ["active", "ended"],
+        ended: [],
+      };
+      invariant(allowed[before].includes(status), `A ${before} placement can't be changed to ${status}.`);
       s.status = status;
       if (status === "active" && s.startsOn > nowISO()) s.startsOn = nowISO();
       const org = d.organizations.find((o) => o.id === s.orgId);

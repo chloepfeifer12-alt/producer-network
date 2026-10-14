@@ -13,11 +13,12 @@ export interface NavGroup {
 }
 
 export const PUBLIC_NAV = [
-  { href: "/opportunities", label: "Opportunities" },
-  { href: "/organizations", label: "Organizations" },
-  { href: "/explore", label: "Explore the industry" },
+  { href: "/opportunities", label: "Find jobs" },
+  { href: "/organizations", label: "Companies" },
+  { href: "/launch", label: "New Producer Portal" },
+  { href: "/explore", label: "Career paths" },
   { href: "/community", label: "Community" },
-  { href: "/for-organizations", label: "For organizations" },
+  { href: "/for-organizations", label: "For employers" },
 ];
 
 export const MEMBER_NAV: NavGroup[] = [
@@ -25,7 +26,7 @@ export const MEMBER_NAV: NavGroup[] = [
     items: [
       { href: "/me", label: "Home", icon: "LayoutDashboard" },
       { href: "/me/profile", label: "Profile", icon: "UserRound", prefix: true },
-      { href: "/me/applications", label: "Applications", icon: "Send", prefix: true },
+      { href: "/me/applications", label: "My jobs", icon: "Send", prefix: true },
       { href: "/me/saved", label: "Saved", icon: "Bookmark" },
     ],
   },
@@ -42,8 +43,9 @@ export const MEMBER_NAV: NavGroup[] = [
   {
     label: "Discover",
     items: [
-      { href: "/opportunities", label: "Opportunities", icon: "Briefcase", prefix: true },
-      { href: "/organizations", label: "Organizations", icon: "Building2", prefix: true },
+      { href: "/opportunities", label: "Find jobs", icon: "Briefcase", prefix: true },
+      { href: "/organizations", label: "Companies", icon: "Building2", prefix: true },
+      { href: "/launch", label: "New Producer Portal", icon: "GraduationCap" },
       { href: "/resources", label: "Resources", icon: "BookOpen", prefix: true },
     ],
   },
@@ -57,6 +59,7 @@ export const ORG_NAV: NavGroup[] = [
       { href: "/org/pipeline", label: "Pipeline", icon: "KanbanSquare", prefix: true },
       { href: "/org/opportunities", label: "Opportunities", icon: "Briefcase", prefix: true },
       { href: "/org/talent", label: "Talent discovery", icon: "Compass" },
+      { href: "/org/portal", label: "New Producer Portal", icon: "GraduationCap" },
       { href: "/org/analytics", label: "Analytics", icon: "ChartLine" },
     ],
   },

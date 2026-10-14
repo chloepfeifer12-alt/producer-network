@@ -37,7 +37,7 @@ export const seedSponsored: SponsoredPlacement[] = [
   { id: "spn_1", orgId: "org_lanternway", surface: "home_featured", status: "active", startsOn: daysAgo(10), endsOn: daysFromNow(20), createdAt: daysAgo(12) },
   { id: "spn_2", orgId: "org_corvane", surface: "directory_top", status: "active", startsOn: daysAgo(5), endsOn: daysFromNow(25), createdAt: daysAgo(7) },
   { id: "spn_3", orgId: "org_ashgrove", opportunityId: "opp_ag_broker", surface: "search_top", status: "active", startsOn: daysAgo(3), endsOn: daysFromNow(27), createdAt: daysAgo(4) },
-  { id: "spn_4", orgId: "org_meridale", opportunityId: "opp_md_associate", surface: "line_page", status: "scheduled", startsOn: daysFromNow(5), endsOn: daysFromNow(35), createdAt: daysAgo(1) },
+  { id: "spn_4", orgId: "org_meridale", opportunityId: "opp_md_associate", surface: "line_page", status: "active", startsOn: daysAgo(2), endsOn: daysFromNow(28), createdAt: daysAgo(1) },
   { id: "spn_5", orgId: "org_tidewell", surface: "directory_top", status: "ended", startsOn: daysAgo(60), endsOn: daysAgo(30), createdAt: daysAgo(62) },
   { id: "spn_6", orgId: "org_kestrelwood", opportunityId: "opp_kw_cl_producer", surface: "search_top", status: "requested", startsOn: daysFromNow(2), endsOn: daysFromNow(32), createdAt: daysAgo(0, 9) },
 ];

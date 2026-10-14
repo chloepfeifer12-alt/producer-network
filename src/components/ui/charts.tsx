@@ -5,7 +5,7 @@
  * Single-series, single-hue (navy) marks; recessive grid; hover crosshair +
  * tooltip; every chart has a visually-hidden table for screen readers.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { SeriesPoint } from "@/lib/data/types";
 import { formatDate } from "@/lib/utils/dates";
 import { cn } from "@/lib/utils/cn";
@@ -33,6 +33,7 @@ function niceMax(v: number) {
 export function AreaChart({ data, height = 200, label, valueSuffix = "" }: { data: SeriesPoint[]; height?: number; label: string; valueSuffix?: string }) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
+  const gid = `pn-area-${useId().replace(/:/g, "")}`;
   const pad = { l: 34, r: 8, t: 10, b: 24 };
   const max = useMemo(() => niceMax(Math.max(1, ...data.map((d) => d.value))), [data]);
   const iw = Math.max(0, width - pad.l - pad.r);
@@ -57,7 +58,7 @@ export function AreaChart({ data, height = 200, label, valueSuffix = "" }: { dat
           onMouseLeave={() => setHover(null)}
         >
           <defs>
-            <linearGradient id="pn-area" x1="0" x2="0" y1="0" y2="1">
+            <linearGradient id={gid} x1="0" x2="0" y1="0" y2="1">
               <stop offset="0%" stopColor="var(--color-navy)" stopOpacity="0.16" />
               <stop offset="100%" stopColor="var(--color-navy)" stopOpacity="0" />
             </linearGradient>
@@ -73,7 +74,7 @@ export function AreaChart({ data, height = 200, label, valueSuffix = "" }: { dat
               {formatDate(data[i]!.date, { month: "short", day: "numeric" })}
             </text>
           ))}
-          <path d={area} fill="url(#pn-area)" />
+          <path d={area} fill={`url(#${gid})`} />
           <path d={line} fill="none" stroke="var(--color-navy)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
           {hover != null && data[hover] && (
             <g>

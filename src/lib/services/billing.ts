@@ -47,6 +47,11 @@ export function requestSponsoredPlacement(actor: User | null, orgId: string, sur
       const org = findOrThrow(d.organizations, orgId, "Organization");
       invariant(org.listingStatus === "approved", "Your organization must be approved before requesting sponsored placements.");
       const plan = findOrThrow(d.plans, org.plan, "Plan");
+      if (opportunityId) {
+        const o = d.opportunities.find((x) => x.id === opportunityId);
+        invariant(o && o.orgId === orgId, "That listing belongs to another organization.");
+        invariant(o.status === "published", "Only published listings can be sponsored.");
+      }
       const used = d.sponsored.filter((s) => s.orgId === orgId && ["active", "scheduled", "requested"].includes(s.status)).length;
       invariant(plan.limits.sponsoredSlots > 0, "Sponsored placements are available on Growth and Premier plans.");
       invariant(used < plan.limits.sponsoredSlots, `Your plan includes ${plan.limits.sponsoredSlots} sponsored placement(s); all are in use.`);

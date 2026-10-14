@@ -6,9 +6,10 @@ import { seedApplications } from "./activity";
 import { seedConnections, seedEvents, seedGroups, seedPosts, seedResources } from "./network";
 import { seedAudit, seedInvoices, seedNotifications, seedOrgProfileViews, seedPlans, seedReports, seedSponsored } from "./platform";
 import { daysAgo } from "@/lib/utils/dates";
+import { financialOpportunities, financialOrganizations, portalShowcases, seedPortalInterests } from "./financial";
 
 /** Bump when the seed shape changes; persisted demo data is reset on mismatch. */
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 /** Builds a fresh, fully synthetic database. */
 export function buildSeedDatabase(): Database {
@@ -16,8 +17,8 @@ export function buildSeedDatabase(): Database {
     schemaVersion: SCHEMA_VERSION,
     users: seedUsers,
     profiles: seedProfiles,
-    organizations: seedOrganizations,
-    opportunities: seedOpportunities,
+    organizations: [...seedOrganizations, ...financialOrganizations].map((o) => (portalShowcases[o.id] ? { ...o, portal: portalShowcases[o.id] } : o)),
+    opportunities: [...seedOpportunities, ...financialOpportunities],
     applications: seedApplications,
     savedOpportunities: [
       { userId: "u_maya", targetId: "opp_kw_cl_producer", savedAt: daysAgo(2) },
@@ -49,6 +50,7 @@ export function buildSeedDatabase(): Database {
     introductions: [
       { id: "intro_1", orgId: "org_kestrelwood", senderId: "u_daniel", userId: "u_maya", opportunityId: "opp_kw_cl_producer", message: "Hi Maya — your contractor-focused work caught our attention. Our construction practice is growing, and we'd welcome a no-pressure conversation if you're open to it.", status: "sent", createdAt: daysAgo(1, 16) },
     ],
-    orgProfileViews: seedOrgProfileViews,
+    orgProfileViews: { ...seedOrgProfileViews, org_haldenridge: 1460, org_brookmere: 2210, org_callowaybay: 640 },
+    portalInterests: seedPortalInterests,
   });
 }

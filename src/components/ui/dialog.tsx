@@ -6,6 +6,11 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 function useLockAndEscape(open: boolean, onClose: () => void, panel: React.RefObject<HTMLDivElement | null>) {
+  // Keep the latest onClose in a ref so inline arrow callbacks don't re-run the effect (which would steal focus).
+  const closeRef = useRef(onClose);
+  useEffect(() => {
+    closeRef.current = onClose;
+  });
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -16,7 +21,7 @@ function useLockAndEscape(open: boolean, onClose: () => void, panel: React.RefOb
       (el ?? panel.current)?.focus();
     }, 10);
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") closeRef.current();
       if (e.key === "Tab" && panel.current) {
         const f = panel.current.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]),textarea,select,[tabindex]:not([tabindex="-1"])');
         if (!f.length) return;
@@ -38,7 +43,7 @@ function useLockAndEscape(open: boolean, onClose: () => void, panel: React.RefOb
       document.removeEventListener("keydown", onKey);
       previouslyFocused?.focus?.();
     };
-  }, [open, onClose, panel]);
+  }, [open, panel]);
 }
 
 export function Dialog({

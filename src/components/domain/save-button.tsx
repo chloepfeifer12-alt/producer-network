@@ -34,6 +34,8 @@ export function SaveButton({ targetId, type = "opportunity", variant = "icon", c
     else toast("Couldn't save", { body: r.error, tone: "error" });
   };
 
+  // Saving is a member feature; don't show the control to employers or admins.
+  if (user && !can(user, "member:save")) return null;
   const Icon = saved ? BookmarkCheck : Bookmark;
   if (variant === "button") {
     return (

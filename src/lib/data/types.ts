@@ -32,10 +32,19 @@ export type LineSlug =
   | "specialty"
   | "surplus-lines"
   | "claims-operations"
-  | "agency-leadership";
+  | "agency-leadership"
+  // Financial services
+  | "financial-planning"
+  | "wealth-management"
+  | "retirement-plans"
+  | "investments-securities"
+  | "bank-financial-services";
+
+export type Sector = "insurance" | "financial_services";
 
 export interface InsuranceLine {
   slug: LineSlug;
+  sector: Sector;
   name: string;
   shortName: string;
   summary: string;
@@ -232,7 +241,10 @@ export type OrgCategory =
   | "wholesale_broker"
   | "mga"
   | "claims_services"
-  | "agency_network";
+  | "agency_network"
+  | "ria"
+  | "broker_dealer"
+  | "bank_program";
 
 export type RecruitingStatus = "actively_recruiting" | "selective" | "not_recruiting";
 export type OrgListingStatus = "pending" | "approved" | "changes_requested" | "rejected" | "suspended";
@@ -266,6 +278,27 @@ export interface CultureValue {
   description: string;
 }
 
+export interface PortalShowcase {
+  participating: boolean;
+  headline: string;
+  whyJoin: string[];
+  firstYear: string;
+  idealFor: string[];
+  statesHiring: string[]; // USPS codes or ["ALL"]
+  licensingSupport: string;
+}
+
+/** A newly licensed member raising their hand to a portal company (consent-based share). */
+export interface PortalInterest {
+  id: ID;
+  userId: ID;
+  orgId: ID;
+  note: string;
+  share: ApplicationShare;
+  status: "sent" | "viewed" | "contacted" | "closed";
+  createdAt: ISODate;
+}
+
 export interface Organization {
   id: ID;
   slug: string;
@@ -294,6 +327,8 @@ export interface Organization {
   brand: OrgBrand;
   listingStatus: OrgListingStatus;
   listingNote?: string;
+  /** Curated New Producer Portal showcase (optional). */
+  portal?: PortalShowcase;
   plan: PlanId;
   createdAt: ISODate;
   updatedAt: ISODate;
@@ -641,6 +676,7 @@ export interface Database {
   audit: AuditEvent[];
   notifications: Notification[];
   introductions: Introduction[];
+  portalInterests: PortalInterest[];
   /** Demo organization profile-view counters (by org id). */
   orgProfileViews: Record<ID, number>;
 }

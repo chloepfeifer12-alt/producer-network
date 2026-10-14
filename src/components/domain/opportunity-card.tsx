@@ -61,7 +61,8 @@ export function OpportunityCard({ o, org, sponsored, className, compact }: { o: 
         )}
       </div>
 
-      <div className="mt-auto flex items-end justify-between gap-3 border-t border-line pt-4 mt-5">
+      <div className="mt-auto pt-5">
+      <div className="flex items-end justify-between gap-3 border-t border-line pt-4">
         <div className="min-w-0">
           <div className="text-[11px] uppercase tracking-[0.1em] text-ink-4">Compensation as disclosed</div>
           <div className="mt-0.5 truncate text-[13.5px] font-medium text-ink">{compensationLabel(o.compensation)}</div>
@@ -69,6 +70,7 @@ export function OpportunityCard({ o, org, sponsored, className, compact }: { o: 
         <div className="flex shrink-0 items-center gap-1 text-xs text-ink-4" suppressHydrationWarning>
           <Clock3 className="h-3.5 w-3.5" />{o.postedAt ? relativeDay(o.postedAt) : "—"}
         </div>
+      </div>
       </div>
     </article>
   );
