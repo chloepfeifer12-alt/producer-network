@@ -1,0 +1,76 @@
+import Link from "next/link";
+import { brand } from "@/config/brand";
+import { Wordmark } from "@/components/brand/wordmark";
+
+const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
+  {
+    title: "Platform",
+    links: [
+      { href: "/opportunities", label: "Opportunities" },
+      { href: "/organizations", label: "Organizations" },
+      { href: "/explore", label: "Explore the industry" },
+      { href: "/community", label: "Community" },
+      { href: "/resources", label: "Resources" },
+    ],
+  },
+  {
+    title: "For organizations",
+    links: [
+      { href: "/for-organizations", label: "Recruit on the network" },
+      { href: "/pricing", label: "Plans & pricing" },
+      { href: "/join/organization", label: "List your organization" },
+      { href: "/for-organizations#sponsored", label: "Sponsored placements" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { href: "/about", label: "About" },
+      { href: "/about#prototype", label: "Prototype notes" },
+      { href: "/support", label: "Support" },
+      { href: "/support#contact", label: "Contact" },
+    ],
+  },
+  {
+    title: "Legal (placeholders)",
+    links: [
+      { href: "/legal/terms", label: "Terms of Service" },
+      { href: "/legal/privacy", label: "Privacy Policy" },
+      { href: "/legal/producer-consent", label: "Producer Consent" },
+      { href: "/legal/organization-terms", label: "Organization Terms" },
+      { href: "/legal/advertising", label: "Advertising Agreement" },
+      { href: "/legal/community-guidelines", label: "Community Guidelines" },
+    ],
+  },
+];
+
+export function PublicFooter() {
+  return (
+    <footer className="border-t border-line bg-surface">
+      <div className="mx-auto max-w-7xl px-4 pb-10 pt-16 sm:px-6 lg:px-8">
+        <div className="grid gap-12 lg:grid-cols-[1.3fr_repeat(4,1fr)]">
+          <div className="max-w-xs">
+            <Wordmark />
+            <p className="mt-4 text-sm leading-relaxed text-ink-3">{brand.tagline} An independent career and recruiting platform — not an insurer, agency, or recruiting firm.</p>
+          </div>
+          {COLUMNS.map((c) => (
+            <div key={c.title}>
+              <div className="eyebrow mb-4">{c.title}</div>
+              <ul className="space-y-2.5">
+                {c.links.map((l) => (
+                  <li key={l.href}>
+                    <Link href={l.href} className="text-sm text-ink-2 transition hover:text-ink">{l.label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div className="mt-14 flex flex-col gap-3 border-t border-line pt-6 text-xs leading-relaxed text-ink-3 md:flex-row md:items-center md:justify-between">
+          <p>© {brand.year} {brand.legalEntity}. Prototype — all people, organizations, listings and figures shown are fictional.</p>
+          <p>{brand.name} does not sell insurance, provide licensing verification, or guarantee employment or earnings.</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
