@@ -14,7 +14,8 @@ test("producer: create profile → browse orgs → save → apply → track", as
   await page.getByRole("button", { name: /Continue/ }).click();
   await page.getByRole("button", { name: "Commercial Insurance" }).click();
   await page.getByRole("button", { name: /Continue/ }).click();
-  await page.getByRole("checkbox", { name: /I acknowledge the placeholder/ }).check({ force: true });
+  await page.getByText(/I acknowledge the placeholder/).click({ position: { x: 8, y: 8 } });
+  await expect(page.getByRole("checkbox", { name: /I acknowledge the placeholder/ })).toBeChecked();
   await page.getByRole("button", { name: "Create my profile" }).click();
   await expect(page).toHaveURL(/\/me\/profile/);
   await expect(page.getByText("Taylor Demo").first()).toBeVisible();

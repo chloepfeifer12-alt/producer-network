@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowDown, Check, GraduationCap, ListFilter, SearchX, Sparkles, Zap } from "lucide-react";
-import type { CareerCategory, ExperienceLevel, LeadsPolicy, Opportunity, OpportunityKind, Organization, WorkArrangement } from "@/lib/data/types";
+import { ArrowDown, Check, GraduationCap, ListFilter, SearchX, Sparkles } from "lucide-react";
+import type { CareerCategory, Database, ExperienceLevel, FitAnswers, LeadsPolicy, Opportunity, OpportunityKind, Organization, User, WorkArrangement } from "@/lib/data/types";
+import { scoreOpportunity } from "@/lib/services/fit";
+import { Kicker } from "@/components/editorial";
 import { useDb } from "@/lib/store/db-store";
 import { useCurrentUser } from "@/lib/auth/session";
 import { publishedOpportunities, recordOpportunityView, searchOpportunities, type CompFilter, type OpportunityFilters } from "@/lib/services/opportunities";
@@ -60,7 +62,7 @@ const WHERE_OPTIONS = [
 const PAGE = 15;
 const DESKTOP = "(min-width: 1024px)";
 
-type Sort = "relevance" | "newest";
+type Sort = "relevance" | "newest" | "match";
 type Update = ReturnType<typeof useUrlParams>["update"];
 type FacetCount = <K extends keyof OpportunityFilters>(key: K, value: OpportunityFilters[K]) => number;
 
@@ -85,7 +87,7 @@ export function OpportunityMarketplace() {
       leads: readList(params, "leads", LEADS),
       comp: readList(params, "comp", COMP),
       training: readFlag(params, "training") || undefined,
-      sort: sort === "newest" || sort === "relevance" ? sort : undefined,
+      sort: sort === "newest" || sort === "relevance" || sort === "match" ? (sort as OpportunityFilters["sort"]) : undefined,
     };
   }, [params]);
 
@@ -104,7 +106,23 @@ export function OpportunityMarketplace() {
   /** Filter changes reset the selected posting so the first result is shown. */
   const set: Update = useCallback((patch) => update({ ...patch, jk: null }), [update]);
 
-  const results = useMemo(() => searchOpportunities(db, filters), [db, filters]);
+  const matchAnswers = useMemo(() => answersFor(db, user), [db, user]);
+  const sortParam = params.get("sort");
+  const effectiveSort: Sort = sortParam === "match" && matchAnswers ? "match" : (filters.sort as Sort | undefined) ?? (filters.q ? "relevance" : matchAnswers ? "match" : "newest");
+  const matches = useMemo(() => {
+    const m = new Map<string, { score: number; reasons: string[] }>();
+    if (!matchAnswers) return m;
+    for (const o of publishedOpportunities(db)) {
+      const r = scoreOpportunity(db, o, matchAnswers);
+      m.set(o.id, { score: r.score, reasons: r.reasons.slice(0, 3).map((x) => x.text) });
+    }
+    return m;
+  }, [db, matchAnswers]);
+  const results = useMemo(() => {
+    const base = searchOpportunities(db, { ...filters, sort: effectiveSort === "match" ? "newest" : (effectiveSort as "relevance" | "newest") });
+    if (effectiveSort !== "match") return base;
+    return [...base].sort((a, b) => (matches.get(b.id)?.score ?? 0) - (matches.get(a.id)?.score ?? 0));
+  }, [db, filters, effectiveSort, matches]);
   const total = useMemo(() => publishedOpportunities(db).length, [db]);
   const orgById = useMemo(() => new Map(db.organizations.map((o) => [o.id, o])), [db]);
   const applied = useMemo(() => new Set(user ? db.applications.filter((a) => a.applicantId === user.id && !a.withdrawn).map((a) => a.opportunityId) : []), [db, user]);
@@ -137,7 +155,6 @@ export function OpportunityMarketplace() {
   }, [selectedId]);
   const select = (o: Opportunity) => update({ jk: o.slug });
 
-  const effectiveSort: Sort = filters.sort ?? (filters.q ? "relevance" : "newest");
 
   /* ----- active chips ----- */
   const chips: ActiveChip[] = [];
@@ -163,11 +180,36 @@ export function OpportunityMarketplace() {
   return (
     <>
       {/* ---------- Search band ---------- */}
-      <section className="border-b border-line bg-surface/50">
-        <Container className="pb-5 pt-7 sm:pt-9">
-          <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
-            <h1 className="font-display text-[26px] leading-tight text-ink sm:text-[32px]">Insurance &amp; financial services jobs</h1>
-            <p className="text-[13px] text-ink-3">{pluralize(total, "open listing")} · Compensation always shown as disclosed</p>
+      <section className="border-b border-line">
+        <Container className="pb-6 pt-10 sm:pt-12">
+          <Kicker className="mb-5">Opportunities</Kicker>
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-x-10 gap-y-5">
+            <div className="max-w-2xl">
+              <h1 className="font-display text-[34px] leading-[1.05] tracking-[-0.02em] text-ink sm:text-[44px]">Opportunities, described honestly.</h1>
+              <p className="mt-3 text-[15px] leading-relaxed text-ink-3">{pluralize(total, "open listing")} across insurance and financial services. Pay is shown only as disclosed, every producer cost is stated, and {matchAnswers ? "results are matched to your preferences — with the reasons shown." : "signed-in members see transparent matches."}</p>
+            </div>
+            <div role="radiogroup" aria-label="Two ways to work" className="flex w-full rounded-full border border-line-strong bg-surface p-1 sm:w-auto">
+              {([
+                ["all", "All", "Every listing"],
+                ["employment", "Jobs · W-2", "You'd be an employee"],
+                ["contracting", "Affiliations · 1099", "You'd run your own practice"],
+              ] as const).map(([value, label, hint]) => {
+                const active = value === "all" ? !filters.kind?.length || filters.kind.length === 2 : filters.kind?.length === 1 && filters.kind[0] === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    title={hint}
+                    onClick={() => set({ kind: value === "all" ? [] : [value] })}
+                    className={cn("flex-1 whitespace-nowrap rounded-full px-4 py-2 text-[13px] transition sm:flex-none", active ? "bg-ink font-medium text-white" : "text-ink-3 hover:text-ink")}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
           <WhatWhereSearch
             what={what}
@@ -239,15 +281,16 @@ export function OpportunityMarketplace() {
               {filters.state && <span className="font-normal text-ink-3"> in {stateName(filters.state)}</span>}
             </h2>
             <p className="mt-0.5 text-[12.5px] text-ink-3">
-              {effectiveSort === "relevance" && filters.q ? "Ranked by keyword relevance, then date." : "Newest first."} Organic results are never ranked by payment.
+              {effectiveSort === "match" ? "Best match first — ranked only by how each listing lines up with your stated preferences." : effectiveSort === "relevance" && filters.q ? "Ranked by keyword relevance, then date." : "Newest first."} Organic results are never ranked by payment.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <label htmlFor="opp-sort" className="text-[12.5px] text-ink-3">
               Sort by
             </label>
-            <div className="w-[140px]">
+            <div className="w-[150px]">
               <Select id="opp-sort" value={effectiveSort} onChange={(e) => update({ sort: e.target.value as Sort })} className="h-8 rounded-lg text-[13px]">
+                {matchAnswers && <option value="match">Best match</option>}
                 <option value="relevance">Relevance</option>
                 <option value="newest">Date posted</option>
               </Select>
@@ -256,11 +299,7 @@ export function OpportunityMarketplace() {
         </div>
         <ActiveFilterChips chips={chips} onClearAll={() => clear()} className="mt-3" />
 
-        <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-xl border border-line bg-surface px-3.5 py-2.5 text-[12.5px] leading-relaxed text-ink-3">
-          <KindBadge kind="employment" /> <span>you&apos;d be a W-2 employee.</span>
-          <span aria-hidden className="mx-1 hidden h-3 w-px bg-line sm:inline-block" />
-          <KindBadge kind="contracting" /> <span>you&apos;d run your own practice as an independent (1099) contractor.</span>
-        </p>
+
 
         {results.length === 0 ? (
           <EmptyState
@@ -300,7 +339,7 @@ export function OpportunityMarketplace() {
                   <span className="h-px flex-1 bg-line" />
                 </div>
               )}
-              <ResultList key={JSON.stringify(filters)} results={results} orgById={orgById} selectedId={selectedId} applied={applied} onSelect={select} />
+              <ResultList key={JSON.stringify(filters) + effectiveSort} results={results} orgById={orgById} selectedId={selectedId} applied={applied} onSelect={select} matches={effectiveSort === "match" ? matches : undefined} />
             </div>
 
             {/* Pane */}
@@ -366,7 +405,9 @@ function ResultList({
   selectedId,
   applied,
   onSelect,
+  matches,
 }: {
+  matches?: Map<string, { score: number; reasons: string[] }>;
   results: Opportunity[];
   orgById: Map<string, Organization>;
   selectedId?: string;
@@ -380,7 +421,7 @@ function ResultList({
       <ul className="space-y-3" aria-label="Search results">
         {shown.map((o) => (
           <li key={o.id}>
-            <JobCard o={o} org={orgById.get(o.orgId)} selected={o.id === selectedId} applied={applied.has(o.id)} onSelect={() => onSelect(o)} />
+            <JobCard o={o} org={orgById.get(o.orgId)} selected={o.id === selectedId} applied={applied.has(o.id)} onSelect={() => onSelect(o)} match={matches?.get(o.id)} />
           </li>
         ))}
       </ul>
@@ -399,17 +440,17 @@ function ResultList({
 }
 
 /** Compact, selectable job card. Desktop selects into the split pane; mobile navigates to the posting. */
-function JobCard({ o, org, sponsored, selected, applied, onSelect }: { o: Opportunity; org?: Organization; sponsored?: boolean; selected: boolean; applied: boolean; onSelect: () => void }) {
+function JobCard({ o, org, sponsored, selected, applied, onSelect, match }: { o: Opportunity; org?: Organization; sponsored?: boolean; selected: boolean; applied: boolean; onSelect: () => void; match?: { score: number; reasons: string[] } }) {
   const isNew = !!o.postedAt && demoToday() - new Date(o.postedAt).getTime() < 3 * DAY_MS;
   return (
     <article
       className={cn(
-        "group relative rounded-xl border p-4 transition duration-150",
+        "group relative rounded-xl border p-4 transition duration-200",
         sponsored ? "border-gold-200 bg-gold-50/60" : "bg-surface",
-        selected ? "border-navy shadow-lift ring-1 ring-navy" : !sponsored && "border-line hover:border-line-strong hover:shadow-card",
+        selected ? "border-ink shadow-lift" : !sponsored && "border-line hover:-translate-y-px hover:border-line-strong hover:shadow-card",
       )}
     >
-      {selected && <span aria-hidden className="absolute -left-px bottom-3 top-3 w-[3px] rounded-r-full bg-navy" />}
+      {selected && <span aria-hidden className="absolute -left-px bottom-3 top-3 w-[3px] rounded-r-full bg-ink" />}
       {sponsored && (
         <div className="mb-2.5 flex items-center gap-2">
           <SponsoredTag />
@@ -450,23 +491,32 @@ function JobCard({ o, org, sponsored, selected, applied, onSelect }: { o: Opport
         </span>
       </div>
 
-      <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-ink-3">
-        {o.trainingProvided && (
-          <span className="inline-flex items-center gap-1">
-            <GraduationCap className="h-3.5 w-3.5 text-ink-4" strokeWidth={1.75} /> Training provided
-          </span>
-        )}
-        {applied ? (
-          <span className="inline-flex items-center gap-1 font-medium text-success">
-            <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> Applied
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1">
-            <Zap className="h-3.5 w-3.5 text-navy-400" strokeWidth={1.75} /> Quick apply
-          </span>
-        )}
-        {o.leads === "provided" && <span>Leads provided</span>}
-      </div>
+      <dl className="mt-3 grid grid-cols-3 gap-2 border-t border-line pt-2.5 text-[11.5px]">
+        <div>
+          <dt className="text-ink-4">Training</dt>
+          <dd className={cn("mt-0.5 font-medium", o.trainingProvided ? "text-ink-2" : "text-ink-4")}>{o.trainingProvided ? "Provided" : "Not listed"}</dd>
+        </div>
+        <div>
+          <dt className="text-ink-4">Leads</dt>
+          <dd className="mt-0.5 font-medium text-ink-2">{o.leads === "provided" ? "Provided" : o.leads === "available_at_cost" ? "At your cost" : "Self-generated"}</dd>
+        </div>
+        <div>
+          <dt className="text-ink-4">Pay</dt>
+          <dd className="mt-0.5 font-medium text-ink-2">{o.compensation.disclosed ? "Range disclosed" : "Model only"}</dd>
+        </div>
+      </dl>
+
+      {match && match.reasons.length > 0 && (
+        <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-4">Why</span>
+          {match.reasons.map((r) => (
+            <span key={r} className="inline-flex max-w-full items-center gap-1 truncate rounded-full bg-navy-50 px-2 py-0.5 text-[11.5px] text-navy-600">
+              <Check className="h-3 w-3 shrink-0" strokeWidth={2.5} />
+              <span className="truncate">{r}</span>
+            </span>
+          ))}
+        </div>
+      )}
 
       <div className="mt-3 flex items-center gap-2 text-[11.5px] text-ink-4" suppressHydrationWarning>
         {isNew && (
@@ -475,7 +525,34 @@ function JobCard({ o, org, sponsored, selected, applied, onSelect }: { o: Opport
           </span>
         )}
         <span>{o.postedAt ? `Posted ${relativeDay(o.postedAt).toLowerCase()}` : ""}</span>
+        {applied && (
+          <span className="ml-auto inline-flex items-center gap-1 font-medium text-success">
+            <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> Applied
+          </span>
+        )}
       </div>
     </article>
   );
+}
+
+/** Matching preferences: saved Industry Fit answers, else derived from the member's profile. */
+function answersFor(db: Database, user: User | null): Omit<FitAnswers, "updatedAt"> | null {
+  if (!user || (user.kind !== "producer" && user.kind !== "aspiring")) return null;
+  const saved = db.fitAnswers[user.id];
+  if (saved) return saved;
+  const p = db.profiles.find((x) => x.userId === user.id);
+  if (!p || p.specialties.length === 0) return null;
+  const stage: FitAnswers["stage"] =
+    p.experienceLevel === "no_license" ? "exploring" : p.experienceLevel === "newly_licensed" ? "newly_licensed" : p.experienceLevel === "early" ? "early" : p.experienceLevel === "leadership" ? "leader" : "established";
+  const model: FitAnswers["model"] = p.engagementPrefs.length === 1 ? (p.engagementPrefs[0] === "w2" ? "employed" : "independent") : "open";
+  return {
+    stage,
+    lines: p.specialties,
+    model,
+    training: stage === "exploring" || stage === "newly_licensed" ? "structured" : "mentorship",
+    leads: "optional_paid",
+    environment: p.arrangementPrefs[0] ?? "any",
+    ambitions: [],
+    state: p.state || undefined,
+  };
 }

@@ -4,13 +4,15 @@ import { Wordmark } from "@/components/brand/wordmark";
 
 const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
   {
-    title: "Platform",
+    title: "Destinations",
     links: [
+      { href: "/network", label: "The Network" },
+      { href: "/discover", label: "Discover" },
       { href: "/opportunities", label: "Opportunities" },
-      { href: "/organizations", label: "Organizations" },
-      { href: "/explore", label: "Explore the industry" },
-      { href: "/community", label: "Community" },
-      { href: "/resources", label: "Resources" },
+      { href: "/people", label: "People" },
+      { href: "/insider", label: "The Insider" },
+      { href: "/fit", label: "Your Industry Fit" },
+      { href: "/launch", label: "New Producer Portal" },
     ],
   },
   {
@@ -51,7 +53,7 @@ export function PublicFooter() {
         <div className="grid gap-12 lg:grid-cols-[1.3fr_repeat(4,1fr)]">
           <div className="max-w-xs">
             <Wordmark />
-            <p className="mt-4 text-sm leading-relaxed text-ink-3">{brand.tagline} An independent career and recruiting platform — not an insurer, agency, or recruiting firm.</p>
+            <p className="mt-4 text-sm leading-relaxed text-ink-3">The professional home of the insurance industry. An independent network — not an insurer, agency, recruiting firm or investment adviser.</p>
           </div>
           {COLUMNS.map((c) => (
             <div key={c.title}>

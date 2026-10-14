@@ -33,7 +33,6 @@ export const seedArticles: Article[] = [
       { type: "h2", text: "Ask candidates to ask hard questions" },
       { type: "p", text: "Several leaders said the strongest candidates ask about costs, lead programs and what happens if production targets aren't met. Organizations that answer those questions in writing tend to retain people longer — and candidates notice which organizations don't." },
       { type: "list", items: ["Share a written first-year plan before an offer.", "Disclose every producer-paid cost up front.", "Let candidates talk to current team members without a manager present."] },
-      { type: "p", text: "This feature is fictional demo content written for the Producer Network prototype." },
     ],
   },
   {
@@ -85,7 +84,6 @@ export const seedArticles: Article[] = [
       { type: "quote", text: "Rules change every year. “How we did it last year” is never a defense.", cite: "Elena Vasquez (fictional)" },
       { type: "h2", text: "Advice for the newly licensed?" },
       { type: "p", text: "Find an organization with a real compliance team, not a binder. Re-read your requirements every season. And protect your calendar for learning — it's the first thing to go when you get busy." },
-      { type: "p", text: "Fictional interview created for the prototype." },
     ],
   },
   {

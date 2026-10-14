@@ -116,7 +116,7 @@ function UsersTable() {
                         <Avatar name={u.name} tone={profileTone(db, u.id)} size={32} />
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 font-medium text-ink">
-                            {u.kind === "producer" || u.kind === "aspiring" ? <Link href={`/network/members/${u.id}`} className="hover:text-navy">{u.name}</Link> : u.name}
+                            {u.kind === "producer" || u.kind === "aspiring" ? <Link href={`/people/${u.id}`} className="hover:text-navy">{u.name}</Link> : u.name}
                             {isSelf && <Badge tone="navy">You</Badge>}
                           </div>
                           <div className="font-mono text-[11.5px] text-ink-3">{u.email}</div>

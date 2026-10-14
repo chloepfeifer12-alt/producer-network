@@ -22,7 +22,7 @@ export default defineConfig({
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1360, height: 900 } } },
   ],
   webServer: {
-    command: `npx next start -p ${PORT}`,
+    command: `NEXT_DIST_DIR=${process.env.NEXT_DIST_DIR ?? ".next"} npx next start -p ${PORT}`,
     port: PORT,
     reuseExistingServer: true,
     timeout: 120_000,

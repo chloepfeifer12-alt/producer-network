@@ -9,7 +9,9 @@ import { Button, type ButtonSize } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Field, Textarea } from "@/components/ui/form";
 import { toast, toastResult } from "@/components/ui/toast";
+import { can } from "@/lib/auth/permissions";
 import { cn } from "@/lib/utils/cn";
+import { JoinPromptDialog } from "@/components/people/join-prompt";
 import { useStableCallback } from "./use-stable-callback";
 
 const NOTE_MAX = 300;
@@ -65,6 +67,8 @@ export function ConnectionAction({
   otherName,
   size = "sm",
   allowWithdraw,
+  visitorPrompt,
+  variant = "secondary",
   className,
 }: {
   otherId: string;
@@ -72,6 +76,10 @@ export function ConnectionAction({
   size?: ButtonSize;
   /** Show a withdraw control for outgoing requests (profile pages). */
   allowWithdraw?: boolean;
+  /** For visitors, show Connect and explain how to join instead of rendering nothing. */
+  visitorPrompt?: boolean;
+  /** Style of the primary "Connect" button. */
+  variant?: "secondary" | "primary" | "accent";
   className?: string;
 }) {
   const db = useDb();
@@ -87,7 +95,23 @@ export function ConnectionAction({
   );
   const firstName = otherName.split(" ")[0];
 
-  if (!user || state === "self") return null;
+  if (!user) {
+    if (!visitorPrompt) return null;
+    return (
+      <>
+        <Button variant={variant} size={size} className={className} onClick={() => setOpen(true)}>
+          <UserPlus className="h-4 w-4" strokeWidth={1.75} /> Connect
+        </Button>
+        <JoinPromptDialog
+          open={open}
+          onClose={() => setOpen(false)}
+          title={`Join to connect with ${firstName}`}
+          reason="Connections are a mutual choice between members. Create a profile, or explore the prototype as one of the demo members."
+        />
+      </>
+    );
+  }
+  if (state === "self" || !can(user, "network:participate")) return null;
 
   if (state === "connected") {
     return (
@@ -143,7 +167,7 @@ export function ConnectionAction({
 
   return (
     <>
-      <Button variant="secondary" size={size} className={className} onClick={() => setOpen(true)}>
+      <Button variant={variant} size={size} className={className} onClick={() => setOpen(true)}>
         <UserPlus className="h-4 w-4" strokeWidth={1.75} /> Connect
       </Button>
       <ConnectDialog open={open} onClose={() => setOpen(false)} otherId={otherId} otherName={otherName} />

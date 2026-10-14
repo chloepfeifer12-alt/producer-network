@@ -82,7 +82,7 @@ export const seedOrganizations: Organization[] = [
     statesServed: ["ALL"],
     lines: ["life", "annuities", "accident-health", "medicare"],
     arrangements: ["remote", "hybrid"],
-    engagementTypes: ["independent_contractor"],
+    engagementTypes: ["independent_contractor", "w2"],
     teamSize: "60 staff · affiliated producer network",
     trainingAvailable: true,
     trainingPrograms: [

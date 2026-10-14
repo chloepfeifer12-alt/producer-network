@@ -69,7 +69,7 @@ export function NetworkRail({ user }: { user: User }) {
           </Link>
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-1 border-t border-line px-5 py-3 sm:px-6">
-          <RailLink href="/network/members">Find members</RailLink>
+          <RailLink href="/people">Find members</RailLink>
           {canSaveResources && (
             <Link href="/me/saved?tab=resources" className="inline-flex items-center gap-1.5 text-[13px] text-ink-3 hover:text-ink">
               <Bookmark className="h-3.5 w-3.5" strokeWidth={1.75} /> Saved resources
@@ -171,7 +171,7 @@ export function NetworkQuickLinks({ user }: { user: User }) {
   const db = useDb();
   const pending = useMemo(() => pendingIncoming(db, user.id).length, [db, user.id]);
   const items = [
-    { href: "/network/members", label: "Members", icon: Users },
+    { href: "/people", label: "Members", icon: Users },
     { href: pending ? "/network/connections?tab=received" : "/network/connections", label: pending ? `${pending} pending` : "Connections", icon: Handshake },
     { href: "/network/groups", label: "Groups", icon: Layers },
     { href: "/network/events", label: "Events", icon: CalendarDays },

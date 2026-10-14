@@ -1,12 +1,32 @@
 # Producer Network — prototype
 
-**The career home for insurance and financial services.** Producer Network is an independent job, recruiting and professional-networking platform: an Indeed-style job marketplace, company discovery, a curated **New Producer Portal** for newly licensed producers, a recruiting workspace for employers, a professional network, and an internal admin console.
+**The professional home of the insurance industry. An industry network first; a career marketplace second.**
+
+Five destinations, plus one signature feature:
+
+| Destination | Route | What it is |
+|---|---|---|
+| **The Network** | `/network` | Member headquarters and default home after sign-in: personal briefing, Insider stories, opportunities with reasons, people and mentors, conversations, events, and a quiet desk for saved items and applications |
+| **Discover** | `/discover` · `/organizations` · `/organizations/[slug]` · `/organizations/compare` | Editorial directory of agencies, IMOs, FMOs, carrier programs, advisory firms and bank programs, with collections, follow, compare and rich company profiles |
+| **Opportunities** | `/opportunities` · `/opportunities/[slug]` | Career marketplace: W-2 jobs vs. 1099 affiliations always distinct, transparent "Best match" with reasons, consent-based applications |
+| **People** | `/people` · `/people/[id]` | Professional portfolios, mentors (request mentorship), directory, connections |
+| **The Insider** | `/insider` · `/insider/[slug]` · `/insider/section/[section]` | Editorial hub: insights, career guides, leadership, interviews, education, emerging opportunities, events, spotlights (all fictional demo content) |
+| **Your Industry Fit** | `/fit` | 8-question career discovery with deterministic, explainable matching to organizations and opportunities |
+
+Also: New Producer Portal (`/launch`), employer recruiting workspace (`/org`), admin console (`/admin`).
 
 > **Prototype status.** Everything here runs on synthetic data inside your browser. All people, companies, listings, metrics and prices are fictional. The demo role switcher is **not authentication**. Nothing is production-ready — see [Before production](#before-production).
 
 This project is fully standalone. It was created in its own directory (`/home/user/producer-network`) and shares no code, data or configuration with any other project. The workspace contained no other codebase when the project was created, so nothing else was touched.
 
 ---
+
+## Viewing the running app
+
+This repository runs anywhere Node.js runs. If you are reviewing work done in a remote/cloud environment, `localhost` there is **not** reachable from your computer and that environment blocks public tunnels. Use one of these:
+
+1. **Run locally** (recommended) — steps below; open http://localhost:3000.
+2. **Deploy a preview** — push the repo to GitHub and import it in Vercel (zero config for Next.js) to get a shareable URL. No environment variables are required.
 
 ## Run it locally
 
@@ -26,6 +46,8 @@ Production build:
 npm run build
 npm start              # http://localhost:3000
 ```
+
+To run a production build alongside `npm run dev`, use a separate output folder: `NEXT_DIST_DIR=.next-build npm run build && NEXT_DIST_DIR=.next-build npx next start -p 3200`.
 
 Quality checks:
 
@@ -77,7 +99,9 @@ All of the following work against one shared local dataset, so actions in one ro
 - Career paths (17 categories: 12 insurance + 5 financial services), resources library and reader, community overview, for-employers page, pricing concept, about (with prototype notes), support/FAQ, and six legal **placeholders**.
 - Member and employer **sign-up wizards** that create real (local) accounts.
 
-**Producer / aspiring producer workspace** (`/me`)
+**Your Industry Fit** (`/fit`) — deterministic preference matching (`src/lib/services/fit.ts`): every point awarded is shown as a reason, gaps as considerations, and the point table is published on the results page. No AI, no protected characteristics, not an employment decision, licenses not verified. Members can save answers; the Network, Discover and Opportunities ("Best match") then explain recommendations with them.
+
+**Producer / aspiring producer workspace** (`/me`, reached from the account menu)
 - Job-seeker home: search, "Jobs for you" with transparent match reasons, My jobs summary, employer introductions, aspiring-producer pathway, events, resources.
 - **My jobs**: Saved / Applied / Interviewing / Archived; application detail with timeline, interview, messages, "what you shared", withdraw.
 - Résumé-style **profile** with section editors, licenses & registrations (always *Self-reported — Not verified*), masked NPN, portfolio, and **Preview as** (public / member / employer).
@@ -178,7 +202,7 @@ tests/e2e/             Playwright journeys
 - `npm run lint`: passes with 0 errors.
 - `npm run build`: succeeds; 55 page templates (80+ routes once career-path, legal and resource pages are generated).
 - Route crawl of every page as visitor, producer, aspiring producer, employer and admin: no runtime or console errors; wrong-role access shows the access panel.
-- Playwright (`tests/e2e`), **7/7 passing**:
+- Playwright (`tests/e2e`), **13/13 passing**:
   1. Producer: create account → browse companies → save → apply with consent → see it in My jobs.
   2. Access control: producer blocked from `/admin` and `/org`.
   3. Licenses always show "Self-reported — Not verified", never "Verified".
@@ -186,6 +210,12 @@ tests/e2e/             Playwright journeys
   5. Consent: employer can't see an NPN that wasn't shared.
   6. New Producer Portal: express interest in multiple companies → employer responds → producer sees the response.
   7. Admin: approve an organization (it becomes public), approve a sponsored request, reject the misleading-income listing, verify in the audit log.
+  8. Members land on their Network headquarters from `/`.
+  9. Old `/network/members/*` links redirect to People.
+  10. Discover: follow an organization.
+  11. People: request mentorship from a mentor.
+  12. The Insider: open a story.
+  13. Your Industry Fit: answer the questions, see explainable results, save to profile.
 
 Visual review was done at desktop (1440px) and mobile (390px) widths for key screens. Not every screen has been reviewed at every breakpoint.
 

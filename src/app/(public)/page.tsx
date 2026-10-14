@@ -1,18 +1,5 @@
-import { Hero } from "@/components/home/hero";
-import { Community, ExploreLines, FeaturedOpportunities, FeaturedOrganizations, FinalCta, ForOrganizations, PortalBand, Principles } from "@/components/home/sections";
+import { FrontPage } from "@/components/home/front";
 
 export default function HomePage() {
-  return (
-    <>
-      <Hero />
-      <FeaturedOpportunities />
-      <PortalBand />
-      <ExploreLines />
-      <FeaturedOrganizations />
-      <ForOrganizations />
-      <Community />
-      <Principles />
-      <FinalCta />
-    </>
-  );
+  return <FrontPage />;
 }

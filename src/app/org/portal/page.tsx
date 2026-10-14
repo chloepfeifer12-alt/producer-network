@@ -118,7 +118,7 @@ function Portal({ db, user, org }: OrgContext) {
                       {i.status === "sent" && <Button size="sm" variant="secondary" onClick={() => act(i.id, "viewed", "Marked as viewed")}>Mark viewed</Button>}
                       {(i.status === "sent" || i.status === "viewed") && <Button size="sm" variant="accent" onClick={() => act(i.id, "contacted", `${member.name.split(" ")[0]} was notified that you responded`)}>Respond</Button>}
                       {i.status !== "closed" && <Button size="sm" variant="ghost" onClick={() => act(i.id, "closed", "Introduction closed")}>Close</Button>}
-                      <ButtonLink size="sm" variant="ghost" href={`/network/members/${member.id}`}>View profile</ButtonLink>
+                      <ButtonLink size="sm" variant="ghost" href={`/people/${member.id}`}>View profile</ButtonLink>
                     </div>
                   </CardBody>
                 </Card>

@@ -45,7 +45,7 @@ export const MEMBER_NAV: NavGroup[] = [
     label: "Network",
     items: [
       { href: "/network", label: "Feed", icon: "MessageSquare" },
-      { href: "/network/members", label: "Members", icon: "Users", prefix: true },
+      { href: "/people", label: "Members", icon: "Users", prefix: true },
       { href: "/network/connections", label: "Connections", icon: "Handshake" },
       { href: "/network/groups", label: "Groups", icon: "Layers", prefix: true },
       { href: "/network/events", label: "Events", icon: "CalendarDays" },

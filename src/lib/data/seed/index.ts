@@ -19,14 +19,16 @@ const MENTORS: Record<string, { available: boolean; topics: string[]; note: stri
 };
 
 /** Bump when the seed shape changes; persisted demo data is reset on mismatch. */
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 
 /** Builds a fresh, fully synthetic database. */
 export function buildSeedDatabase(): Database {
   return structuredClone({
     schemaVersion: SCHEMA_VERSION,
     users: seedUsers,
-    profiles: seedProfiles.map((p) => (MENTORS[p.userId] ? { ...p, mentor: MENTORS[p.userId] } : p)),
+    profiles: seedProfiles.map((p) =>
+      MENTORS[p.userId] ? { ...p, mentor: MENTORS[p.userId], visibility: p.userId === "u_maya" ? p.visibility : ("public" as const) } : p,
+    ),
     organizations: [...seedOrganizations, ...financialOrganizations].map((o) => (portalShowcases[o.id] ? { ...o, portal: portalShowcases[o.id] } : o)),
     opportunities: [...seedOpportunities, ...financialOpportunities],
     applications: seedApplications,

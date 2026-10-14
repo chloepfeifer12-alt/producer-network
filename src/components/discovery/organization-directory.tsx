@@ -2,8 +2,8 @@
 
 import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Building2, Check, Columns3, GraduationCap, ListFilter, Megaphone, Plus, Users, X } from "lucide-react";
-import type { EngagementType, OrgCategory, Organization, RecruitingStatus, WorkArrangement } from "@/lib/data/types";
+import { ArrowLeft, ArrowRight, Building2, Columns3, GraduationCap, ListFilter, Users } from "lucide-react";
+import type { EngagementType, OrgCategory, RecruitingStatus, WorkArrangement } from "@/lib/data/types";
 import { useDb } from "@/lib/store/db-store";
 import { activeSponsored, approvedOrganizations, orgOpenOpportunities, searchOrganizations, type OrgFilters } from "@/lib/services/organizations";
 import {
@@ -17,13 +17,11 @@ import {
   lineName,
   stateName,
 } from "@/lib/data/taxonomy";
-import { OrgCard } from "@/components/domain/org-card";
-import { OrgLogo } from "@/components/brand/org-logo";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/dialog";
-import { EmptyState, SponsoredTag } from "@/components/ui/feedback";
+import { EmptyState } from "@/components/ui/feedback";
+import { Kicker } from "@/components/editorial";
 import { Container } from "@/components/ui/page";
-import { toast } from "@/components/ui/toast";
 import { pluralize } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import {
@@ -39,6 +37,8 @@ import {
   type FacetOption,
 } from "./filter-ui";
 import { MAX_COMPARE } from "./compare-config";
+import { DiscoverOrgCard } from "@/components/discover/discover-org-card";
+import { CompareTray, useCompareSelection } from "@/components/discover/compare-tray";
 import { readFlag, readList, useSyncedState, useUrlParams } from "./url-state";
 
 const CATEGORIES = Object.keys(ORG_CATEGORY_LABEL) as OrgCategory[];
@@ -93,18 +93,8 @@ export function OrganizationDirectory() {
 
   const facetCount: FacetCount = useCallback((key, value) => searchOrganizations(db, { ...filters, [key]: value }).length, [db, filters]);
 
-  /* ----- compare selection (session only) ----- */
-  const [compare, setCompare] = useState<string[]>([]);
-  const toggleCompare = (id: string) =>
-    setCompare((c) => {
-      if (c.includes(id)) return c.filter((x) => x !== id);
-      if (c.length >= MAX_COMPARE) {
-        toast(`Compare up to ${MAX_COMPARE} organizations`, { body: "Remove one from the compare bar to add another.", tone: "info" });
-        return c;
-      }
-      return [...c, id];
-    });
-  const compareOrgs = compare.map((id) => db.organizations.find((o) => o.id === id)).filter((o): o is Organization => !!o);
+  /* ----- compare selection (session only, shared with /discover) ----- */
+  const compare = useCompareSelection();
 
   /* ----- chips ----- */
   const chips: ActiveChip[] = [];
@@ -129,11 +119,19 @@ export function OrganizationDirectory() {
   return (
     <>
       {/* ---------- Search band ---------- */}
-      <section className="border-b border-line bg-surface/50">
-        <Container className="pb-5 pt-7 sm:pt-9">
-          <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
-            <h1 className="font-display text-[26px] leading-tight text-ink sm:text-[32px]">Find companies in insurance &amp; financial services</h1>
-            <p className="text-[13px] text-ink-3">{pluralize(totalOrgs, "reviewed organization")} · Fictional demo data</p>
+      <section className="border-b border-line">
+        <Container className="pb-6 pt-8 sm:pt-12">
+          <div className="mb-6">
+            <Kicker>
+              <Link href="/discover" className="inline-flex items-center gap-1.5 hover:text-ink">
+                <ArrowLeft className="h-3 w-3" /> Discover
+              </Link>
+              <span className="mx-2 text-ink-4">/</span>The directory
+            </Kicker>
+            <div className="mt-5 flex flex-wrap items-end justify-between gap-x-8 gap-y-2">
+              <h1 className="font-display text-[34px] leading-[1.05] tracking-[-0.015em] text-ink sm:text-[46px]">Every company, A–Z</h1>
+              <p className="pb-1.5 text-[13px] text-ink-3">{pluralize(totalOrgs, "reviewed organization")} · Fictional demo data</p>
+            </div>
           </div>
           <WhatWhereSearch
             what={what}
@@ -142,8 +140,8 @@ export function OrganizationDirectory() {
             onWhere={setWhere}
             whereOptions={WHERE_OPTIONS}
             onSubmit={runSearch}
-            whatLabel="Company name"
-            whatPlaceholder="Company name, city or keyword"
+            whatLabel="Company, specialty or city"
+            whatPlaceholder="Company, specialty or city"
           />
 
           {/* Category pills */}
@@ -225,32 +223,29 @@ export function OrganizationDirectory() {
         <ActiveFilterChips chips={chips} onClearAll={() => clear()} className="mt-3" />
 
         {sponsored.length > 0 && (
-          <section aria-labelledby="sponsored-orgs" className="mt-6 rounded-2xl border border-gold-200 bg-gold-50/50 p-3 sm:p-4">
-            <div className="flex flex-wrap items-start justify-between gap-3 px-1 pb-3">
-              <div className="flex items-start gap-2.5">
-                <Megaphone className="mt-0.5 h-4 w-4 shrink-0 text-gold-ink" strokeWidth={1.75} />
-                <div>
-                  <h2 id="sponsored-orgs" className="flex items-center gap-2 text-[13.5px] font-semibold text-ink">
-                    Sponsored organizations <SponsoredTag />
-                  </h2>
-                  <p className="mt-0.5 max-w-xl text-[12.5px] leading-relaxed text-ink-3">
-                    Paid placement, shown separately. The directory below is alphabetical and is never affected by payment or plan.
-                  </p>
-                </div>
+          <section aria-labelledby="sponsored-orgs" className="mt-6 rounded-2xl border border-gold-200 bg-gold-50/50 p-4 sm:p-5">
+            <div className="flex flex-wrap items-baseline justify-between gap-3 pb-4">
+              <div>
+                <h2 id="sponsored-orgs" className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold-ink">
+                  Sponsored · Paid placement
+                </h2>
+                <p className="mt-1 max-w-xl text-[12.5px] leading-relaxed text-ink-3">
+                  Shown separately. The directory below is alphabetical and is never affected by payment or plan.
+                </p>
               </div>
               <Link href="/for-organizations#sponsored" className="shrink-0 text-[12.5px] font-medium text-gold-ink underline-offset-4 hover:underline">
                 About sponsorship
               </Link>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className={cn("grid gap-4", sponsored.length > 1 && "sm:grid-cols-2 lg:grid-cols-3")}>
               {sponsored.map((s) => (
-                <ComparableCard
+                <DiscoverOrgCard
                   key={s.placement.id}
                   org={s.org}
                   sponsored
+                  orientation={sponsored.length === 1 ? "horizontal" : "vertical"}
                   openCount={openCounts.get(s.org.id) ?? 0}
-                  selected={compare.includes(s.org.id)}
-                  onToggle={() => toggleCompare(s.org.id)}
+                  compare={{ selected: compare.has(s.org.id), onToggle: () => compare.toggle(s.org.id) }}
                 />
               ))}
             </div>
@@ -259,10 +254,7 @@ export function OrganizationDirectory() {
 
         <section aria-label="Directory results" className="mt-6">
           {sponsored.length > 0 && results.length > 0 && (
-            <div className="mb-3 flex items-center gap-3" aria-hidden>
-              <span className="eyebrow">All companies · A–Z</span>
-              <span className="h-px flex-1 bg-line" />
-            </div>
+            <Kicker className="mb-5">All companies · A–Z</Kicker>
           )}
           {results.length === 0 ? (
             <EmptyState
@@ -272,26 +264,26 @@ export function OrganizationDirectory() {
               action={<Button onClick={() => clear()}>Reset search</Button>}
             />
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {results.map((org) => (
-                <ComparableCard key={org.id} org={org} openCount={openCounts.get(org.id) ?? 0} selected={compare.includes(org.id)} onToggle={() => toggleCompare(org.id)} />
+                <DiscoverOrgCard key={org.id} org={org} openCount={openCounts.get(org.id) ?? 0} compare={{ selected: compare.has(org.id), onToggle: () => compare.toggle(org.id) }} />
               ))}
             </div>
           )}
         </section>
 
-        <div className="mt-12 rounded-2xl border border-line bg-surface p-6 shadow-card sm:flex sm:items-center sm:justify-between sm:gap-6">
+        <div className="mt-16 flex flex-col gap-4 border-t border-line pt-8 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
           <div>
-            <h2 className="text-[15px] font-semibold text-ink">Recruiting for your organization?</h2>
+            <h2 className="font-display text-[22px] text-ink">Recruiting for your organization?</h2>
             <p className="mt-1 text-[13.5px] leading-relaxed text-ink-3">Create a reviewed profile, publish transparent listings and manage applicants in one workspace.</p>
           </div>
-          <ButtonLink href="/for-organizations" variant="secondary" className="mt-4 shrink-0 sm:mt-0">
+          <ButtonLink href="/for-organizations" variant="secondary" className="shrink-0">
             For organizations <ArrowRight className="h-4 w-4" />
           </ButtonLink>
         </div>
       </Container>
 
-      <CompareBar orgs={compareOrgs} onRemove={toggleCompare} onClear={() => setCompare([])} />
+      <CompareTray />
 
       <Drawer
         open={drawer}
@@ -349,65 +341,5 @@ function CategoryPill({ active, label, count, title, onClick }: { active: boolea
       {label}
       <span className={cn("text-[11px] tabular-nums", active ? "text-white/70" : "text-ink-4")}>{count}</span>
     </button>
-  );
-}
-
-function ComparableCard({ org, sponsored, openCount, selected, onToggle }: { org: Organization; sponsored?: boolean; openCount: number; selected: boolean; onToggle: () => void }) {
-  return (
-    <div className="relative">
-      <OrgCard org={org} sponsored={sponsored} openCount={openCount} className={cn("h-full", selected && "border-navy-200 ring-2 ring-navy-100")} />
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={selected}
-        aria-label={selected ? `Remove ${org.name} from comparison` : `Add ${org.name} to comparison`}
-        className={cn(
-          "absolute left-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] font-medium shadow-card backdrop-blur transition",
-          selected ? "border-navy bg-navy text-white" : "border-line bg-surface/90 text-ink-2 hover:border-line-strong hover:text-ink",
-        )}
-      >
-        {selected ? <Check className="h-3 w-3" strokeWidth={2.75} /> : <Plus className="h-3 w-3" strokeWidth={2.5} />}
-        Compare
-      </button>
-    </div>
-  );
-}
-
-function CompareBar({ orgs, onRemove, onClear }: { orgs: Organization[]; onRemove: (id: string) => void; onClear: () => void }) {
-  if (!orgs.length) return null;
-  const ready = orgs.length >= 2;
-  return (
-    <div className="fixed inset-x-0 bottom-4 z-40 flex justify-center px-4" role="region" aria-label="Comparison tray">
-      <div className="flex w-full max-w-2xl flex-col gap-3 rounded-2xl border border-line bg-surface/95 p-3 shadow-pop backdrop-blur animate-rise sm:flex-row sm:items-center">
-        <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-          {orgs.map((o) => (
-            <li key={o.id} className="flex items-center gap-2 rounded-xl border border-line bg-subtle py-1 pl-1 pr-1.5">
-              <OrgLogo brand={o.brand} name={o.name} size={24} />
-              <span className="max-w-[120px] truncate text-[12.5px] font-medium text-ink">{o.name}</span>
-              <button type="button" onClick={() => onRemove(o.id)} className="rounded-md p-0.5 text-ink-4 hover:bg-sunken hover:text-ink" aria-label={`Remove ${o.name}`}>
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </li>
-          ))}
-          {Array.from({ length: MAX_COMPARE - orgs.length }).map((_, i) => (
-            <li key={`empty-${i}`} className="hidden h-8 w-24 rounded-xl border border-dashed border-line-strong sm:block" aria-hidden />
-          ))}
-        </ul>
-        <div className="flex shrink-0 items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={onClear}>
-            Clear
-          </Button>
-          {ready ? (
-            <ButtonLink href={`/organizations/compare?ids=${orgs.map((o) => o.id).join(",")}`} size="sm" variant="accent">
-              Compare {orgs.length} <ArrowRight className="h-3.5 w-3.5" />
-            </ButtonLink>
-          ) : (
-            <Button size="sm" variant="accent" disabled title="Select at least two organizations">
-              Select 1 more
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
   );
 }

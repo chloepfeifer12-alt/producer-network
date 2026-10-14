@@ -43,7 +43,7 @@ function TargetPreview({ db, r }: { db: Database; r: Report }) {
         </div>
         <p className="mt-2 text-sm leading-relaxed text-ink-2"><Highlight text={p.body} /></p>
         {author && (author.kind === "producer" || author.kind === "aspiring") && (
-          <Link href={`/network/members/${author.id}`} className="mt-2 inline-flex items-center gap-1 text-xs text-navy-600 hover:text-navy">Author profile <ArrowUpRight className="h-3 w-3" /></Link>
+          <Link href={`/people/${author.id}`} className="mt-2 inline-flex items-center gap-1 text-xs text-navy-600 hover:text-navy">Author profile <ArrowUpRight className="h-3 w-3" /></Link>
         )}
       </div>
     );
@@ -103,7 +103,7 @@ function TargetPreview({ db, r }: { db: Database; r: Report }) {
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
         <Link href={`/admin/users?q=${encodeURIComponent(u.name)}`} className="inline-flex items-center gap-1 text-navy-600 hover:text-navy">Manage user <ArrowUpRight className="h-3 w-3" /></Link>
         {org && <Link href={`/admin/organizations/${org.id}`} className="inline-flex items-center gap-1 text-navy-600 hover:text-navy">Their organization <ArrowUpRight className="h-3 w-3" /></Link>}
-        {(u.kind === "producer" || u.kind === "aspiring") && <Link href={`/network/members/${u.id}`} className="inline-flex items-center gap-1 text-navy-600 hover:text-navy">Member profile <ArrowUpRight className="h-3 w-3" /></Link>}
+        {(u.kind === "producer" || u.kind === "aspiring") && <Link href={`/people/${u.id}`} className="inline-flex items-center gap-1 text-navy-600 hover:text-navy">Member profile <ArrowUpRight className="h-3 w-3" /></Link>}
       </div>
     </div>
   );

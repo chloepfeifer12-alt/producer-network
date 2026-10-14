@@ -31,7 +31,7 @@ export function sendIntroduction(actor: User | null, orgId: string, userId: stri
       const org = d.organizations.find((o) => o.id === orgId);
       invariant(org?.listingStatus === "approved", "Your organization must be approved before contacting members.");
       d.introductions.unshift({ id: newId("intro"), orgId, senderId: actor.id, userId, opportunityId, message: message.trim(), status: "sent", createdAt: nowISO() });
-      notify(d, userId, `Introduction from ${org.name}`, "An organization would like to connect about an opportunity.", "/me");
+      notify(d, userId, `Introduction from ${org.name}`, "An organization would like to connect about an opportunity.", "/network");
       audit(d, actor, "talent.introduction_sent", "user", userId, org.name);
     });
   });

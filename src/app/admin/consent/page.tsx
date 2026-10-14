@@ -149,7 +149,7 @@ export default function AdminConsentPage() {
                     <div className="flex items-center gap-2.5">
                       <Avatar name={u.name} tone={p.avatarTone} size={28} />
                       <div className="min-w-0">
-                        <Link href={`/network/members/${u.id}`} className="font-medium text-ink hover:text-navy">{u.name}</Link>
+                        <Link href={`/people/${u.id}`} className="font-medium text-ink hover:text-navy">{u.name}</Link>
                         <div className="text-xs text-ink-3">{u.kind === "aspiring" ? "Aspiring producer" : "Producer"}{u.status !== "active" ? ` · ${u.status}` : ""}</div>
                       </div>
                     </div>

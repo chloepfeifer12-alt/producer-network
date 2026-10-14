@@ -8,7 +8,7 @@ export const brand = {
   shortName: "Producer Network",
   wordmark: "Producer Network",
   monogram: "PN",
-  tagline: "The career home for insurance and financial services.",
+  tagline: "The professional home of the insurance industry.",
   heroHeadline: "Your Career. Your Network. Your Next Opportunity.",
   heroSupporting:
     "The job and career network connecting insurance and financial services professionals with the organizations, opportunities, and relationships shaping the industry.",

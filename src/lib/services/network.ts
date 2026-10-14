@@ -69,7 +69,7 @@ export function respondToConnection(actor: User | null, connectionId: string, ac
       if (c.toId !== actor.id) throw new PermissionError();
       c.status = accept ? "accepted" : "declined";
       c.respondedAt = nowISO();
-      if (accept) notify(d, c.fromId, "Connection accepted", `${actor.name} accepted your request.`, `/network/members/${actor.id}`);
+      if (accept) notify(d, c.fromId, "Connection accepted", `${actor.name} accepted your request.`, `/people/${actor.id}`);
     });
   });
 }

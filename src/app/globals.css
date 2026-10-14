@@ -101,12 +101,13 @@
   }
 }
 
+@utility font-display {
+  font-family: var(--font-serif);
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
+}
+
 @layer components {
-  .font-display {
-    font-family: var(--font-serif);
-    font-optical-sizing: auto;
-    letter-spacing: -0.015em;
-  }
   .eyebrow {
     font-size: 0.6875rem;
     font-weight: 600;

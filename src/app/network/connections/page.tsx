@@ -69,7 +69,7 @@ function ConnectionsView() {
         eyebrow="Professional network"
         title="Connections"
         description="The people you trade notes with. Connecting never shares license records, NPN or contact details."
-        actions={<ButtonLink href="/network/members" variant="secondary" size="sm">Find members</ButtonLink>}
+        actions={<ButtonLink href="/people" variant="secondary" size="sm">Find members</ButtonLink>}
       />
 
       <Tabs<Tab>
@@ -90,7 +90,7 @@ function ConnectionsView() {
               icon={<Handshake className="h-5 w-5" strokeWidth={1.75} />}
               title="No connections yet"
               description="Browse the directory to find peers in your line of business, or join a group to meet people first."
-              action={<ButtonLink href="/network/members" variant="secondary" size="sm">Browse members</ButtonLink>}
+              action={<ButtonLink href="/people" variant="secondary" size="sm">Browse members</ButtonLink>}
             />
           ) : (
             <Card>
@@ -144,7 +144,7 @@ function ConnectionsView() {
               icon={<Send className="h-5 w-5" strokeWidth={1.75} />}
               title="No sent requests"
               description="Requests you send stay here until the other member responds."
-              action={<ButtonLink href="/network/members" variant="secondary" size="sm">Find people to connect with</ButtonLink>}
+              action={<ButtonLink href="/people" variant="secondary" size="sm">Find people to connect with</ButtonLink>}
             />
           ) : (
             <div className="space-y-3">
