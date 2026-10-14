@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, Sprout, Users } from "lucide-react";
 import type { ProducerProfile } from "@/lib/data/types";
-import { AVAILABILITY_LABEL, lineName } from "@/lib/data/taxonomy";
+import { AVAILABILITY_LABEL } from "@/lib/data/taxonomy";
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils/cn";
 import { pluralize } from "@/lib/utils/format";
@@ -26,7 +25,7 @@ function yearsShort(p: ProducerProfile) {
   return `${p.yearsInIndustry} ${p.yearsInIndustry === 1 ? "yr" : "yrs"}`;
 }
 
-/** Directory card for a member: a person you can act on (view, connect). */
+/** Compact directory row for a member: who, what they do, why they're here, Connect. */
 export function MemberCard({
   profile,
   name,
@@ -42,60 +41,37 @@ export function MemberCard({
   isSelf?: boolean;
   /** Why this member is relevant to the viewer, e.g. "Shares your Commercial focus". */
   reason?: string;
-  /** Visitors see a join prompt instead of mutual connections. */
+  /** Visitors see location and experience instead of mutual connections. */
   signedIn?: boolean;
   className?: string;
 }) {
   const href = peopleHref(profile.userId);
+  const context = [locationLabel(profile), yearsShort(profile)].join(" · ");
+  const line = isSelf
+    ? "Your profile"
+    : signedIn
+      ? reason ?? (mutual > 0 ? pluralize(mutual, "mutual connection") : context)
+      : context;
+  const accent = signedIn && !isSelf && (!!reason || mutual > 0);
   return (
-    <article className={cn("group relative flex h-full flex-col rounded-2xl border border-line bg-surface p-5 transition duration-200 hover:border-line-strong hover:shadow-lift", className)}>
-      <div className="flex items-start gap-3.5">
-        <Avatar name={name} tone={profile.avatarTone} size={52} decorative />
-        <div className="min-w-0 flex-1">
-          <h3 className="text-[15.5px] font-semibold leading-snug tracking-[-0.01em]">
-            <Link
-              href={href}
-              className="rounded-sm text-ink after:absolute after:inset-0 after:rounded-2xl after:content-[''] hover:text-navy-600 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-navy-200"
-            >
-              {name}
-            </Link>
-            {isSelf && <span className="ml-2 text-xs font-normal text-ink-4">You</span>}
-          </h3>
-          <p className="mt-0.5 line-clamp-2 text-[13px] leading-relaxed text-ink-3">{profile.headline}</p>
-        </div>
+    <article className={cn("group relative flex flex-wrap items-center gap-x-4 gap-y-3 py-4 sm:flex-nowrap", className)}>
+      <Avatar name={name} tone={profile.avatarTone} size={44} decorative className="self-start sm:self-center" />
+      <div className="min-w-0 flex-1">
+        <h3 className="truncate text-[15px] font-semibold leading-snug tracking-[-0.01em]">
+          <Link
+            href={href}
+            className="rounded-sm text-ink after:absolute after:inset-0 after:content-[''] hover:text-navy-600 focus-visible:outline-none focus-visible:after:rounded-lg focus-visible:after:ring-2 focus-visible:after:ring-navy-200"
+          >
+            {name}
+          </Link>
+          {isSelf && <span className="ml-2 text-xs font-normal text-ink-4">You</span>}
+        </h3>
+        <p className="line-clamp-2 text-[13.5px] text-ink-2 sm:line-clamp-1">{profile.headline}</p>
+        <p className={cn("mt-0.5 text-[12.5px] sm:truncate", accent ? "text-navy-600" : "text-ink-3")}>{line}</p>
       </div>
-
-      <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-3">
-        <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" strokeWidth={1.75} />{locationLabel(profile)}</span>
-        <span aria-hidden className="text-ink-4">·</span>
-        <span>{yearsShort(profile)}</span>
-        {profile.mentor?.available && (
-          <>
-            <span aria-hidden className="text-ink-4">·</span>
-            <span className="inline-flex items-center gap-1 text-ink-2"><Sprout className="h-3.5 w-3.5 text-success" strokeWidth={1.75} />Mentor</span>
-          </>
-        )}
-      </div>
-
-      <p className="mt-3 text-[12.5px] leading-relaxed text-ink-2">
-        {profile.specialties.slice(0, 3).map((s) => lineName(s, true)).join(" · ")}
-        {profile.specialties.length > 3 && <span className="text-ink-4"> +{profile.specialties.length - 3}</span>}
-      </p>
-
-      {reason && <p className="mt-2 text-xs font-medium text-navy-600">{reason}</p>}
-
-      <div className="min-h-4 flex-1" aria-hidden />
-      <div className="relative z-10 mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
-        {signedIn ? (
-          <span className="inline-flex items-center gap-1.5 text-xs text-ink-3">
-            <Users className="h-3.5 w-3.5" strokeWidth={1.75} />
-            {isSelf ? "Your profile" : mutual > 0 ? pluralize(mutual, "mutual connection") : "No mutual connections yet"}
-          </span>
-        ) : (
-          <AvailabilityDot value={profile.availability} />
-        )}
+      <div className="relative z-10 w-full shrink-0 pl-[60px] sm:w-auto sm:pl-0">
         {isSelf ? (
-          <Link href="/me/profile" className="text-[13px] font-medium text-navy-600 hover:text-navy">Edit profile</Link>
+          <Link href="/me/profile" className="text-[13px] font-medium text-navy-600 hover:text-navy">Edit</Link>
         ) : (
           <ConnectionAction otherId={profile.userId} otherName={name} size="sm" visitorPrompt />
         )}
