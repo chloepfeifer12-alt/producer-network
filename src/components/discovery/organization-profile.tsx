@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowRight, ArrowUpRight, BriefcaseBusiness, GraduationCap, MapPin, MessageSquareText, Users } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BriefcaseBusiness, ChevronDown, GraduationCap, MapPin, MessageSquareText, Users } from "lucide-react";
 import type { Article, InsiderSection, Opportunity, Organization, User } from "@/lib/data/types";
 import { useDb } from "@/lib/store/db-store";
 import { useCurrentUser } from "@/lib/auth/session";
@@ -98,6 +98,7 @@ function ProfileView({ org, preview }: { org: Organization; preview: boolean }) 
   const user = useCurrentUser();
   const compare = useCompareSelection();
   const [introOpen, setIntroOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const roles = useMemo(() => orgOpenOpportunities(db, org.id), [db, org.id]);
   const followers = useMemo(() => followerCount(db, org.id), [db, org.id]);
   const articles = useMemo(
@@ -119,11 +120,10 @@ function ProfileView({ org, preview }: { org: Organization; preview: boolean }) 
         { id: "how-you-work", label: "How you'd work" },
         { id: "compensation", label: "Compensation" },
         { id: "culture", label: "Culture" },
-        org.leadership.length ? { id: "leadership", label: "Leadership" } : null,
-        { id: "states", label: "States served" },
         articles.length ? { id: "insider", label: "In The Insider" } : null,
+        { id: "more", label: "More: leadership & states" },
       ].filter((s): s is { id: string; label: string } => !!s),
-    [portal, org.leadership.length, articles.length],
+    [portal, articles.length],
   );
   const active = useActiveSection(sections.map((s) => s.id));
   const ground = `color-mix(in oklab, ${org.brand.tint} 62%, var(--color-canvas))`;
@@ -133,8 +133,8 @@ function ProfileView({ org, preview }: { org: Organization; preview: boolean }) 
     <>
       {/* ---------- Hero ---------- */}
       <section className="relative border-b border-line" style={{ background: ground }}>
-        <div className="relative h-[200px] overflow-hidden sm:h-[300px]">
-          <CoverArt seed={org.id} variant={variantFor(org.id)} hue={org.brand.color} ground={org.brand.tint} label={`${org.name} cover art (generated)`} className="animate-fade-in" />
+        <div className="relative h-[160px] overflow-hidden sm:h-[240px]">
+          <CoverArt seed={org.id} variant={variantFor(org.id)} hue={org.brand.color} ground={org.brand.tint} label={`${org.name} cover art (generated)`} intensity={0.5} className="animate-fade-in" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24" style={{ background: `linear-gradient(to bottom, transparent, ${ground})` }} aria-hidden />
           <Container className="absolute inset-x-0 top-5">
             <div className="inline-flex rounded-full bg-surface/85 px-3 py-1.5 backdrop-blur">
@@ -154,15 +154,15 @@ function ProfileView({ org, preview }: { org: Organization; preview: boolean }) 
           )}
           <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
             <div className="min-w-0 lg:col-span-8">
-              <OrgLogo brand={org.brand} name={org.name} size={104} className={cn("relative shadow-lift", preview ? "" : "-mt-14")} />
-              <div className="mt-6 flex flex-wrap items-center gap-3">
+              <OrgLogo brand={org.brand} name={org.name} size={80} className={cn("relative shadow-card", preview ? "" : "-mt-10")} />
+              <div className="mt-5 flex flex-wrap items-center gap-3">
                 <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: org.brand.color }}>
                   {ORG_CATEGORY_LABEL[org.category]}
                 </span>
                 <DemoTag>Fictional</DemoTag>
               </div>
-              <h1 className="mt-3 font-display text-[40px] leading-[1.02] tracking-[-0.02em] text-ink sm:text-[60px]">{org.name}</h1>
-              <p className="mt-4 max-w-[56ch] font-display text-[20px] italic leading-snug text-ink-2 sm:text-[22px]">{org.tagline}</p>
+              <h1 className="mt-2 font-display text-[34px] leading-[1.08] tracking-[-0.02em] text-ink sm:text-[46px]">{org.name}</h1>
+              <p className="mt-3 max-w-[56ch] text-[16px] leading-relaxed text-ink-2 sm:text-[17px]">{org.tagline}</p>
               <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13.5px] text-ink-2">
                 <span className="inline-flex items-center gap-1.5">
                   <MapPin className="h-4 w-4 opacity-60" strokeWidth={1.75} />
@@ -203,7 +203,7 @@ function ProfileView({ org, preview }: { org: Organization; preview: boolean }) 
       </section>
 
       {/* ---------- At a glance ---------- */}
-      <section aria-labelledby="glance" className="border-b border-line bg-surface">
+      <section aria-labelledby="glance" className="border-b border-line">
         <Container>
           <h2 id="glance" className="sr-only">
             At a glance
@@ -228,6 +228,7 @@ function ProfileView({ org, preview }: { org: Organization; preview: boolean }) 
             <a
               key={s.id}
               href={`#${s.id}`}
+              onClick={s.id === "more" ? () => setMoreOpen(true) : undefined}
               aria-current={active === s.id ? "location" : undefined}
               className={cn("shrink-0 rounded-full px-3 py-1.5 text-[12.5px] transition", active === s.id ? "bg-ink text-white" : "text-ink-3 hover:bg-sunken hover:text-ink")}
             >
@@ -237,12 +238,12 @@ function ProfileView({ org, preview }: { org: Organization; preview: boolean }) 
         </div>
       </nav>
 
-      <Container className="pb-20 pt-14">
+      <Container className="pb-20 pt-14 sm:pt-16">
         <div className="grid gap-14 lg:grid-cols-12">
-          <div className="min-w-0 space-y-16 lg:col-span-8">
+          <div className="min-w-0 space-y-20 lg:col-span-8">
             {/* About */}
             <Section id="about" kicker="About">
-              {lead && <p className="max-w-[60ch] font-display text-[22px] leading-[1.45] text-ink sm:text-[25px]">{lead}</p>}
+              {lead && <p className="max-w-[60ch] font-display text-[19px] leading-[1.5] text-ink sm:text-[21px]">{lead}</p>}
               {rest.length > 0 && (
                 <div className="prose-pn mt-5 max-w-[68ch] text-[15.5px] leading-[1.75] text-ink-2">
                   {rest.map((p, i) => (
@@ -483,45 +484,6 @@ function ProfileView({ org, preview }: { org: Organization; preview: boolean }) 
               )}
             </Section>
 
-            {/* Leadership */}
-            {org.leadership.length > 0 && (
-              <Section id="leadership" kicker="Leadership">
-                <ul className="grid gap-x-10 gap-y-6 sm:grid-cols-2">
-                  {org.leadership.map((l, i) => (
-                    <li key={l.id} className="flex gap-4">
-                      <Avatar name={l.name} tone={i + org.name.length} size={48} />
-                      <div className="min-w-0">
-                        <div className="text-[15px] font-semibold text-ink">{l.name}</div>
-                        <div className="text-[12.5px] text-ink-3">{l.title}</div>
-                        <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-2">{l.bio}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </Section>
-            )}
-
-            {/* States */}
-            <Section id="states" kicker="States served" title={isNationwide(org) ? "Nationwide" : `${pluralize(org.statesServed.length, "state")}`}>
-              {isNationwide(org) ? (
-                <p className="text-[14.5px] leading-relaxed text-ink-2">
-                  Headquartered in {org.hqCity}, {stateName(org.hqState)}. Licensing requirements still apply state by state.
-                </p>
-              ) : (
-                <>
-                  <ul className="flex flex-wrap gap-1.5">
-                    {org.statesServed.map((s) => (
-                      <li key={s} className={cn("rounded-full border px-3 py-1 text-[13px]", s === org.hqState ? "border-ink bg-ink text-white" : "border-line-strong bg-surface text-ink-2")}>
-                        {stateName(s)}
-                        {s === org.hqState && <span className="ml-1.5 text-[11px] opacity-75">HQ</span>}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="mt-3 text-[12.5px] text-ink-3">Licensing requirements vary by state — confirm with the applicable state department of insurance.</p>
-                </>
-              )}
-            </Section>
-
             {/* Insider */}
             {articles.length > 0 && (
               <Section id="insider" kicker="In The Insider" title={`Coverage mentioning ${org.name}`}>
@@ -532,6 +494,63 @@ function ProfileView({ org, preview }: { org: Organization; preview: boolean }) 
                 </ul>
               </Section>
             )}
+
+            {/* More about: secondary details, folded away by default */}
+            <section id="more" aria-labelledby="more-title" className="scroll-mt-32">
+              <details open={moreOpen} onToggle={(e) => setMoreOpen(e.currentTarget.open)} className="group border-y border-line">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 [&::-webkit-details-marker]:hidden">
+                  <span>
+                    <span id="more-title" className="block font-display text-[22px] leading-tight text-ink">
+                      More about {org.name}
+                    </span>
+                    <span className="mt-1 block text-[13px] text-ink-3">
+                      {[org.leadership.length ? "Leadership" : null, "States served"].filter(Boolean).join(" · ")}
+                    </span>
+                  </span>
+                  <ChevronDown className="h-5 w-5 shrink-0 text-ink-3 transition-transform group-open:rotate-180" strokeWidth={1.75} />
+                </summary>
+                <div className="space-y-12 pb-10 pt-4">
+                  {/* Leadership */}
+                  {org.leadership.length > 0 && (
+                    <Section id="leadership" kicker="Leadership" quiet>
+                      <ul className="grid gap-x-10 gap-y-6 sm:grid-cols-2">
+                        {org.leadership.map((l, i) => (
+                          <li key={l.id} className="flex gap-4">
+                            <Avatar name={l.name} tone={i + org.name.length} size={48} />
+                            <div className="min-w-0">
+                              <div className="text-[15px] font-semibold text-ink">{l.name}</div>
+                              <div className="text-[12.5px] text-ink-3">{l.title}</div>
+                              <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-2">{l.bio}</p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </Section>
+                  )}
+
+                  {/* States */}
+                  <Section id="states" kicker="States served" quiet title={isNationwide(org) ? "Nationwide" : `${pluralize(org.statesServed.length, "state")}`}>
+                    {isNationwide(org) ? (
+                      <p className="text-[14.5px] leading-relaxed text-ink-2">
+                        Headquartered in {org.hqCity}, {stateName(org.hqState)}. Licensing requirements still apply state by state.
+                      </p>
+                    ) : (
+                      <>
+                        <ul className="flex flex-wrap gap-1.5">
+                          {org.statesServed.map((s) => (
+                            <li key={s} className={cn("rounded-full border px-3 py-1 text-[13px]", s === org.hqState ? "border-ink bg-ink text-white" : "border-line-strong bg-surface text-ink-2")}>
+                              {stateName(s)}
+                              {s === org.hqState && <span className="ml-1.5 text-[11px] opacity-75">HQ</span>}
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="mt-3 text-[12.5px] text-ink-3">Licensing requirements vary by state — confirm with the applicable state department of insurance.</p>
+                      </>
+                    )}
+                  </Section>
+                </div>
+              </details>
+            </section>
 
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-xs text-ink-4">
               <span>Profile details are provided by the organization and reviewed for policy compliance, not independently verified.</span>
@@ -549,6 +568,7 @@ function ProfileView({ org, preview }: { org: Organization; preview: boolean }) 
                     <li key={s.id}>
                       <a
                         href={`#${s.id}`}
+                        onClick={s.id === "more" ? () => setMoreOpen(true) : undefined}
                         aria-current={active === s.id ? "location" : undefined}
                         className={cn("-ml-px block border-l-2 py-1.5 pl-4 text-[13.5px] transition", active === s.id ? "font-medium text-ink" : "border-transparent text-ink-3 hover:text-ink")}
                         style={active === s.id ? { borderColor: org.brand.color } : undefined}
@@ -591,12 +611,12 @@ function ProfileView({ org, preview }: { org: Organization; preview: boolean }) 
 
       {/* ---------- Similar companies ---------- */}
       {similar.length > 0 && (
-        <section aria-labelledby="similar" className="border-t border-line bg-surface/60">
+        <section aria-labelledby="similar" className="border-t border-line">
           <Container className="pb-24 pt-14">
             <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
               <div>
                 <Kicker rule={false}>Similar companies</Kicker>
-                <h2 id="similar" className="mt-3 font-display text-[30px] leading-tight text-ink">If {org.name} interests you</h2>
+                <h2 id="similar" className="mt-3 font-display text-[24px] leading-tight text-ink sm:text-[26px]">If {org.name} interests you</h2>
                 <p className="mt-2 text-[14px] text-ink-3">Chosen by shared specialties, type and engagement model.</p>
               </div>
               <Link href="/discover" className="group inline-flex items-center gap-1.5 text-[13px] font-medium text-ink-2 hover:text-ink">
@@ -618,21 +638,22 @@ function ProfileView({ org, preview }: { org: Organization; preview: boolean }) 
   );
 }
 
-function Section({ id, kicker, title, action, children }: { id: string; kicker: string; title?: string; action?: ReactNode; children: ReactNode }) {
+function Section({ id, kicker, title, action, quiet, children }: { id: string; kicker: string; title?: string; action?: ReactNode; quiet?: boolean; children: ReactNode }) {
+  const H = quiet ? "h3" : "h2";
   return (
     <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-32">
       <Kicker>{kicker}</Kicker>
       {title ? (
         <div className="mb-6 mt-4 flex flex-wrap items-end justify-between gap-3">
-          <h2 id={`${id}-title`} className="font-display text-[28px] leading-[1.12] tracking-[-0.015em] text-ink sm:text-[32px]">
+          <H id={`${id}-title`} className={cn("font-display leading-[1.15] tracking-[-0.015em] text-ink", quiet ? "text-[20px]" : "text-[24px] sm:text-[28px]")}>
             {title}
-          </h2>
+          </H>
           {action}
         </div>
       ) : (
-        <h2 id={`${id}-title`} className="sr-only">
+        <H id={`${id}-title`} className="sr-only">
           {kicker}
-        </h2>
+        </H>
       )}
       <div className={title ? "" : "mt-6"}>{children}</div>
     </section>
@@ -643,7 +664,7 @@ function Glance({ i, label, value, hint, muted }: { i: number; label: string; va
   return (
     <div
       className={cn(
-        "border-b border-line px-4 py-5 lg:border-b-0",
+        "border-b border-line px-4 py-4 lg:border-b-0",
         i % 2 === 0 ? "border-r" : "border-r-0",
         i % 4 !== 3 ? "sm:border-r" : "sm:border-r-0",
         i !== 7 ? "lg:border-r" : "lg:border-r-0",
@@ -686,20 +707,16 @@ function RolesByKind({ roles }: { roles: Opportunity[] }) {
 
 function ArticleTeaser({ a }: { a: Article }) {
   return (
-    <li className="group relative">
-      <div className="aspect-[16/9] overflow-hidden rounded-xl border border-line">
-        <CoverArt seed={a.id} variant={a.art.variant} hue={a.art.hue} ground={a.art.ground} className="transition-transform duration-500 group-hover:scale-[1.03]" />
-      </div>
-      <div className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-4">
+    <li className="group relative border-t border-line pt-4">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-4">
         {SECTION_LABEL[a.section]} · {a.readMinutes} min read
       </div>
-      <h3 className="mt-1.5 font-display text-[20px] leading-snug text-ink">
+      <h3 className="mt-1.5 font-display text-[18px] leading-snug text-ink">
         <Link href={`/insider/${a.slug}`} className="after:absolute after:inset-0 group-hover:underline group-hover:decoration-line-strong group-hover:underline-offset-4">
           {a.title}
         </Link>
       </h3>
       <p className="mt-1 line-clamp-2 text-[13.5px] leading-relaxed text-ink-3">{a.dek}</p>
-      <p className="mt-2 text-[11.5px] text-ink-4">Fictional editorial · demo</p>
     </li>
   );
 }

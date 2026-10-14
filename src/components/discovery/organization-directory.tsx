@@ -37,7 +37,7 @@ import {
   type FacetOption,
 } from "./filter-ui";
 import { MAX_COMPARE } from "./compare-config";
-import { DiscoverOrgCard } from "@/components/discover/discover-org-card";
+import { DiscoverOrgCard, SponsoredLabel, SponsoredRow } from "@/components/discover/discover-org-card";
 import { CompareTray, useCompareSelection } from "@/components/discover/compare-tray";
 import { readFlag, readList, useSyncedState, useUrlParams } from "./url-state";
 
@@ -120,7 +120,7 @@ export function OrganizationDirectory() {
     <>
       {/* ---------- Search band ---------- */}
       <section className="border-b border-line">
-        <Container className="pb-6 pt-8 sm:pt-12">
+        <Container className="pb-6 pt-8 sm:pt-10">
           <div className="mb-6">
             <Kicker>
               <Link href="/discover" className="inline-flex items-center gap-1.5 hover:text-ink">
@@ -129,7 +129,7 @@ export function OrganizationDirectory() {
               <span className="mx-2 text-ink-4">/</span>The directory
             </Kicker>
             <div className="mt-5 flex flex-wrap items-end justify-between gap-x-8 gap-y-2">
-              <h1 className="font-display text-[34px] leading-[1.05] tracking-[-0.015em] text-ink sm:text-[46px]">Every company, A–Z</h1>
+              <h1 className="font-display text-[30px] leading-[1.1] tracking-[-0.015em] text-ink sm:text-[36px]">Every company, A–Z</h1>
               <p className="pb-1.5 text-[13px] text-ink-3">{pluralize(totalOrgs, "reviewed organization")} · Fictional demo data</p>
             </div>
           </div>
@@ -223,30 +223,11 @@ export function OrganizationDirectory() {
         <ActiveFilterChips chips={chips} onClearAll={() => clear()} className="mt-3" />
 
         {sponsored.length > 0 && (
-          <section aria-labelledby="sponsored-orgs" className="mt-6 rounded-2xl border border-gold-200 bg-gold-50/50 p-4 sm:p-5">
-            <div className="flex flex-wrap items-baseline justify-between gap-3 pb-4">
-              <div>
-                <h2 id="sponsored-orgs" className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold-ink">
-                  Sponsored · Paid placement
-                </h2>
-                <p className="mt-1 max-w-xl text-[12.5px] leading-relaxed text-ink-3">
-                  Shown separately. The directory below is alphabetical and is never affected by payment or plan.
-                </p>
-              </div>
-              <Link href="/for-organizations#sponsored" className="shrink-0 text-[12.5px] font-medium text-gold-ink underline-offset-4 hover:underline">
-                About sponsorship
-              </Link>
-            </div>
-            <div className={cn("grid gap-4", sponsored.length > 1 && "sm:grid-cols-2 lg:grid-cols-3")}>
+          <section aria-labelledby="sponsored-orgs" className="mt-6">
+            <SponsoredLabel id="sponsored-orgs" note="Shown separately. The list below is A–Z and never affected by payment or plan." />
+            <div className="grid gap-2">
               {sponsored.map((s) => (
-                <DiscoverOrgCard
-                  key={s.placement.id}
-                  org={s.org}
-                  sponsored
-                  orientation={sponsored.length === 1 ? "horizontal" : "vertical"}
-                  openCount={openCounts.get(s.org.id) ?? 0}
-                  compare={{ selected: compare.has(s.org.id), onToggle: () => compare.toggle(s.org.id) }}
-                />
+                <SponsoredRow key={s.placement.id} org={s.org} compare={{ selected: compare.has(s.org.id), onToggle: () => compare.toggle(s.org.id) }} />
               ))}
             </div>
           </section>
@@ -254,7 +235,7 @@ export function OrganizationDirectory() {
 
         <section aria-label="Directory results" className="mt-6">
           {sponsored.length > 0 && results.length > 0 && (
-            <Kicker className="mb-5">All companies · A–Z</Kicker>
+            <Kicker className="mb-5 mt-10">All companies · A–Z</Kicker>
           )}
           {results.length === 0 ? (
             <EmptyState
