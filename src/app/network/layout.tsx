@@ -1,12 +1,14 @@
 "use client";
 
 import { RequireRole } from "@/components/layout/guards";
-import { AppShell } from "@/components/layout/app-shell";
+import { MemberShell } from "@/components/layout/member-shell";
 
-export default function NetworkLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <RequireRole kinds={["producer", "aspiring", "organization"]} permission="network:participate" area="the professional network">
-      {(user) => <AppShell user={user}>{children}</AppShell>}
-    </RequireRole>
+    <MemberShell>
+      <RequireRole kinds={["producer", "aspiring", "organization"]} permission="network:participate" area="the Network">
+        {() => children}
+      </RequireRole>
+    </MemberShell>
   );
 }

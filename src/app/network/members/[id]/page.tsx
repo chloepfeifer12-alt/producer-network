@@ -277,7 +277,7 @@ function MemberProfile({ db, viewer, target, profile, view }: { db: Database; vi
           >
             {posts.length === 0 ? (
               <p className="text-sm text-ink-3">{isSelf ? "You haven't posted yet." : `${firstName} hasn't posted in the network yet.`}{" "}
-                {isSelf && <Link href="/network" className="text-navy-600 hover:underline">Start a discussion</Link>}
+                {isSelf && <Link href="/network/conversations" className="text-navy-600 hover:underline">Start a discussion</Link>}
               </p>
             ) : (
               <div className="-mx-1 space-y-4">

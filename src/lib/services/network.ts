@@ -132,7 +132,7 @@ export function addComment(actor: User | null, postId: string, body: string) {
     commit((d) => {
       const p = findOrThrow(d.posts, postId, "Post");
       p.comments.push({ id: newId("cmt"), authorId: actor.id, body: body.trim(), createdAt: nowISO() });
-      if (p.authorId !== actor.id) notify(d, p.authorId, "New comment", `${actor.name} commented on your post.`, "/network");
+      if (p.authorId !== actor.id) notify(d, p.authorId, "New comment", `${actor.name} commented on your post.`, "/network/conversations");
     });
   });
 }
@@ -197,6 +197,29 @@ export function submitReport(actor: User | null, input: Pick<Report, "targetType
       d.reports.unshift({ id, ...input, details: input.details.trim(), reporterId: actor.id, status: "open", createdAt: nowISO() });
       notifyAdmins(d, "New report", `A ${input.targetType} was reported.`, "/admin/reports");
       audit(d, actor, "report.submitted", input.targetType, input.targetId, input.reason);
+    });
+  });
+}
+
+/* ---------------- Mentorship ---------------- */
+
+export function mentors(db: Database) {
+  return db.profiles.filter((p) => p.mentor?.available && p.visibility !== "private" && p.consent.showInDirectory);
+}
+
+/** A mentorship request is a connection request carrying an explicit note. */
+export function requestMentorship(actor: User | null, mentorId: string, goal: string) {
+  return attempt(() => {
+    assertCan(actor, "network:participate");
+    invariant(goal.trim().length >= 20, "Share what you'd like help with (at least 20 characters).");
+    commit((d) => {
+      const m = d.profiles.find((p) => p.userId === mentorId);
+      invariant(m?.mentor?.available, "This member isn't offering mentorship right now.");
+      const existing = d.connections.find((c) => (c.fromId === actor.id && c.toId === mentorId) || (c.fromId === mentorId && c.toId === actor.id));
+      invariant(!existing || existing.status === "declined", existing?.status === "accepted" ? "You're already connected — message them from Connections." : "You already have a pending request with this member.");
+      d.connections = d.connections.filter((c) => c !== existing);
+      d.connections.unshift({ id: newId("con"), fromId: actor.id, toId: mentorId, status: "pending", message: `Mentorship request: ${goal.trim()}`, createdAt: nowISO() });
+      notify(d, mentorId, "Mentorship request", `${actor.name} asked for mentorship.`, "/network/connections?tab=received");
     });
   });
 }

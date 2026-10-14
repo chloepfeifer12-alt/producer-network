@@ -118,3 +118,80 @@ export function recordOrgView(orgId: string) {
     d.orgProfileViews[orgId] = (d.orgProfileViews[orgId] ?? 0) + 1;
   });
 }
+
+/* ---------------- Follow organizations ---------------- */
+
+export function isFollowing(db: Database, userId: string | undefined, orgId: string) {
+  return !!userId && db.follows.some((f) => f.userId === userId && f.targetId === orgId);
+}
+
+export function followerCount(db: Database, orgId: string) {
+  return db.follows.filter((f) => f.targetId === orgId).length;
+}
+
+export function toggleFollowOrganization(actor: User | null, orgId: string) {
+  return attempt(() => {
+    assertCan(actor, "network:participate");
+    let following = false;
+    commit((d) => {
+      const i = d.follows.findIndex((f) => f.userId === actor.id && f.targetId === orgId);
+      if (i >= 0) d.follows.splice(i, 1);
+      else {
+        d.follows.unshift({ userId: actor.id, targetId: orgId, savedAt: nowISO() });
+        following = true;
+      }
+    });
+    return following;
+  });
+}
+
+/** Editorial collections for Discover — derived from organization data, never from payment. */
+export interface OrgCollection {
+  id: string;
+  title: string;
+  dek: string;
+  match: (o: Organization, db: Database) => boolean;
+}
+
+export const ORG_COLLECTIONS: OrgCollection[] = [
+  {
+    id: "new-producers",
+    title: "Built for new producers",
+    dek: "Structured training, mentorship and licensing support for people starting out.",
+    match: (o) => !!o.portal?.participating && o.trainingAvailable && o.mentorship.available,
+  },
+  {
+    id: "salaried",
+    title: "Salaried development programs",
+    dek: "W-2 roles with a training salary while you learn the business.",
+    match: (o, db) => o.engagementTypes.includes("w2") && publishedOpportunities(db).some((x) => x.orgId === o.id && x.engagement === "w2" && (x.experienceLevel === "no_license" || x.experienceLevel === "newly_licensed")),
+  },
+  {
+    id: "independent",
+    title: "Independent & entrepreneurial",
+    dek: "Affiliation models for producers who want to own their practice.",
+    match: (o) => o.engagementTypes.includes("independent_contractor"),
+  },
+  {
+    id: "specialty",
+    title: "Specialty, wholesale & underwriting",
+    dek: "Technical careers in E&S, programs and specialty markets.",
+    match: (o) => o.lines.some((l) => l === "specialty" || l === "surplus-lines"),
+  },
+  {
+    id: "financial",
+    title: "Financial services firms",
+    dek: "Planning, wealth and bank programs that value insurance expertise.",
+    match: (o) => ["ria", "broker_dealer", "bank_program"].includes(o.category),
+  },
+  {
+    id: "remote",
+    title: "Remote-friendly",
+    dek: "Organizations offering fully remote work arrangements.",
+    match: (o) => o.arrangements.includes("remote"),
+  },
+];
+
+export function collectionOrgs(db: Database, c: OrgCollection) {
+  return approvedOrganizations(db).filter((o) => c.match(o, db));
+}

@@ -28,7 +28,7 @@ export function MessagePlaceholderDialog({ open, onClose: onCloseProp, name }: {
           </p>
           <p className="text-ink-3">
             For now, you can reply to their posts in the{" "}
-            <Link href="/network" className="text-navy-600 underline-offset-2 hover:underline" onClick={onClose}>industry feed</Link> or meet in a shared group.
+            <Link href="/network/conversations" className="text-navy-600 underline-offset-2 hover:underline" onClick={onClose}>industry conversations</Link> or meet in a shared group.
           </p>
         </div>
       </div>

@@ -22,9 +22,9 @@ export interface DemoPersona {
 
 /** The personas exposed in the demo role switcher. */
 export const DEMO_PERSONAS: DemoPersona[] = [
-  { userId: "u_maya", label: "Experienced producer", description: "Maya Okafor · Commercial lines, 9 yrs · Charlotte, NC", home: "/me" },
-  { userId: "u_jordan", label: "Newly licensed producer", description: "Jordan Reyes · Life & health, 5 months · Phoenix, AZ", home: "/me" },
-  { userId: "u_priya", label: "Aspiring producer", description: "Priya Natarajan · Career changer, studying · Columbus, OH", home: "/me" },
+  { userId: "u_maya", label: "Experienced producer", description: "Maya Okafor · Commercial lines, 9 yrs · Charlotte, NC", home: "/network" },
+  { userId: "u_jordan", label: "Newly licensed producer", description: "Jordan Reyes · Life & health, 5 months · Phoenix, AZ", home: "/network" },
+  { userId: "u_priya", label: "Aspiring producer", description: "Priya Natarajan · Career changer, studying · Columbus, OH", home: "/network" },
   { userId: "u_daniel", label: "Independent agency", description: "Daniel Whitfield · Kestrelwood Insurance Partners", home: "/org" },
   { userId: "u_renee", label: "IMO", description: "Renée Castillo · Lanternway Financial Group", home: "/org" },
   { userId: "u_admin", label: "Platform administrator", description: "Morgan Ellery · Producer Network trust & operations", home: "/admin" },
@@ -34,7 +34,7 @@ export function homeFor(user: User | null | undefined): string {
   if (!user) return "/";
   if (user.kind === "organization") return "/org";
   if (user.kind === "admin") return "/admin";
-  return "/me";
+  return "/network";
 }
 
 export function useCurrentUser(): User | null {

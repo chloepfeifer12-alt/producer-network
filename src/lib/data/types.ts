@@ -225,6 +225,8 @@ export interface ProducerProfile {
   visibility: ProfileVisibility;
   consent: ConsentPreferences;
   aspiring?: AspiringDetails;
+  /** Optional mentorship offer shown in People. */
+  mentor?: { available: boolean; topics: string[]; note: string };
   updatedAt: ISODate;
 }
 
@@ -677,6 +679,72 @@ export interface Database {
   notifications: Notification[];
   introductions: Introduction[];
   portalInterests: PortalInterest[];
+  articles: Article[];
+  follows: SavedItem[]; // member follows organization (targetId = orgId)
+  fitAnswers: Record<ID, FitAnswers>;
   /** Demo organization profile-view counters (by org id). */
   orgProfileViews: Record<ID, number>;
+}
+
+/* ------------------------------------------------------------------ */
+/* The Insider (editorial)                                             */
+/* ------------------------------------------------------------------ */
+
+export type InsiderSection =
+  | "insights"
+  | "career_guides"
+  | "leadership"
+  | "interviews"
+  | "education"
+  | "emerging"
+  | "events"
+  | "spotlight";
+
+export type ArticleBlock =
+  | { type: "p"; text: string }
+  | { type: "h2"; text: string }
+  | { type: "quote"; text: string; cite?: string }
+  | { type: "list"; items: string[] };
+
+export interface Article {
+  id: ID;
+  slug: string;
+  section: InsiderSection;
+  title: string;
+  dek: string;
+  authorName: string;
+  authorRole: string;
+  /** Member featured in an interview / spotlight (fictional). */
+  subjectUserId?: ID;
+  relatedOrgIds: ID[];
+  lines: LineSlug[];
+  readMinutes: number;
+  publishedAt: ISODate;
+  featured?: boolean;
+  art: { variant: "arcs" | "grid" | "contour" | "orbit" | "stripes" | "blocks"; hue: string; ground: string };
+  body: ArticleBlock[];
+  isDemo: true;
+}
+
+/* ------------------------------------------------------------------ */
+/* Your Industry Fit                                                   */
+/* ------------------------------------------------------------------ */
+
+export type FitStage = "exploring" | "newly_licensed" | "early" | "established" | "leader";
+export type FitModel = "independent" | "employed" | "career_agency" | "open";
+export type FitTraining = "structured" | "mentorship" | "self_directed";
+export type FitLeads = "provided" | "optional_paid" | "own_book";
+export type FitEnvironment = "remote" | "hybrid" | "in_person" | "any";
+export type FitAmbition = "own_practice" | "specialist" | "lead_team" | "stable_salary" | "client_service";
+
+export interface FitAnswers {
+  stage: FitStage;
+  lines: LineSlug[];
+  model: FitModel;
+  training: FitTraining;
+  leads: FitLeads;
+  environment: FitEnvironment;
+  ambitions: FitAmbition[];
+  state?: string;
+  updatedAt: ISODate;
 }

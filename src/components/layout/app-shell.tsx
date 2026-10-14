@@ -96,7 +96,7 @@ function ContextCard({ user }: { user: User }) {
   );
 }
 
-function Notifications({ user }: { user: User }) {
+export function Notifications({ user }: { user: User }) {
   const db = useDb();
   const router = useRouter();
   const items = useMemo(() => notificationsFor(db, user.id).slice(0, 12), [db, user.id]);

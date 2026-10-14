@@ -21,7 +21,7 @@ export default function CommunityPage() {
         actions={
           <>
             <ButtonLink href="/join" size="lg">Join the Network <ArrowRight className="h-4 w-4" /></ButtonLink>
-            <ButtonLink href="/network" variant="secondary" size="lg">Open the feed (members)</ButtonLink>
+            <ButtonLink href="/network/conversations" variant="secondary" size="lg">Open conversations (members)</ButtonLink>
           </>
         }
       />
@@ -60,7 +60,7 @@ export default function CommunityPage() {
           eyebrow="From the feed"
           title="Recent conversations"
           description="A read-only preview. Members are fictional people in this prototype; join to reply, react and post."
-          action={<ButtonLink href="/network" variant="secondary">Open the feed <ArrowRight className="h-4 w-4" /></ButtonLink>}
+          action={<ButtonLink href="/network/conversations" variant="secondary">Open conversations <ArrowRight className="h-4 w-4" /></ButtonLink>}
         />
         <CommunityPosts />
       </Section>

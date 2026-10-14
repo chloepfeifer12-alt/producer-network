@@ -12,13 +12,24 @@ export interface NavGroup {
   items: NavItem[];
 }
 
+/** The five destinations. Same for visitors and members; members land on /network. */
 export const PUBLIC_NAV = [
-  { href: "/opportunities", label: "Find jobs" },
-  { href: "/organizations", label: "Companies" },
+  { href: "/network", label: "Network" },
+  { href: "/discover", label: "Discover" },
+  { href: "/opportunities", label: "Opportunities" },
+  { href: "/people", label: "People" },
+  { href: "/insider", label: "The Insider" },
+];
+
+/** Secondary links in the member menu. */
+export const MEMBER_MENU = [
+  { href: "/me/profile", label: "Your profile" },
+  { href: "/me/applications", label: "My jobs & applications" },
+  { href: "/me/saved", label: "Saved" },
+  { href: "/fit", label: "Your Industry Fit" },
   { href: "/launch", label: "New Producer Portal" },
-  { href: "/explore", label: "Career paths" },
-  { href: "/community", label: "Community" },
-  { href: "/for-organizations", label: "For employers" },
+  { href: "/network/connections", label: "Connections" },
+  { href: "/me/settings", label: "Privacy & consent" },
 ];
 
 export const MEMBER_NAV: NavGroup[] = [
@@ -70,7 +81,7 @@ export const ORG_NAV: NavGroup[] = [
       { href: "/org/billing", label: "Plan & billing", icon: "CreditCard" },
     ],
   },
-  { label: "Community", items: [{ href: "/network", label: "Industry feed", icon: "MessageSquare", prefix: true }] },
+  { label: "Community", items: [{ href: "/network/conversations", label: "Industry conversations", icon: "MessageSquare", prefix: true }] },
 ];
 
 export const ADMIN_NAV: NavGroup[] = [

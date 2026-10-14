@@ -6,17 +6,27 @@ import { seedApplications } from "./activity";
 import { seedConnections, seedEvents, seedGroups, seedPosts, seedResources } from "./network";
 import { seedAudit, seedInvoices, seedNotifications, seedOrgProfileViews, seedPlans, seedReports, seedSponsored } from "./platform";
 import { daysAgo } from "@/lib/utils/dates";
+import { seedArticles } from "./insider";
 import { financialOpportunities, financialOrganizations, portalShowcases, seedPortalInterests } from "./financial";
 
+const MENTORS: Record<string, { available: boolean; topics: string[]; note: string }> = {
+  u_grace: { available: true, topics: ["Agency leadership", "Hiring & onboarding", "Perpetuation"], note: "Monthly office hours for aspiring agency leaders." },
+  u_claire: { available: true, topics: ["First-year development plans", "Sales coaching", "Career changers"], note: "Two office-hour slots each month — bring a goal." },
+  u_marcus: { available: true, topics: ["Commercial specialization", "Transportation risks"], note: "Happy to talk through building a niche." },
+  u_elena: { available: true, topics: ["Senior-market compliance", "Enrollment season"], note: "For newly licensed advisors in health and Medicare-related work." },
+  u_tom: { available: true, topics: ["Employee benefits careers", "Career changers"], note: "Especially glad to help teachers and analysts exploring benefits." },
+  u_maya: { available: true, topics: ["Commercial lines", "Renewal workflows"], note: "Quarterly coffee chats for newer account managers." },
+};
+
 /** Bump when the seed shape changes; persisted demo data is reset on mismatch. */
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 /** Builds a fresh, fully synthetic database. */
 export function buildSeedDatabase(): Database {
   return structuredClone({
     schemaVersion: SCHEMA_VERSION,
     users: seedUsers,
-    profiles: seedProfiles,
+    profiles: seedProfiles.map((p) => (MENTORS[p.userId] ? { ...p, mentor: MENTORS[p.userId] } : p)),
     organizations: [...seedOrganizations, ...financialOrganizations].map((o) => (portalShowcases[o.id] ? { ...o, portal: portalShowcases[o.id] } : o)),
     opportunities: [...seedOpportunities, ...financialOpportunities],
     applications: seedApplications,
@@ -52,5 +62,15 @@ export function buildSeedDatabase(): Database {
     ],
     orgProfileViews: { ...seedOrgProfileViews, org_haldenridge: 1460, org_brookmere: 2210, org_callowaybay: 640 },
     portalInterests: seedPortalInterests,
+    articles: seedArticles,
+    follows: [
+      { userId: "u_maya", targetId: "org_ashgrove", savedAt: daysAgo(20) },
+      { userId: "u_maya", targetId: "org_oriel", savedAt: daysAgo(9) },
+      { userId: "u_jordan", targetId: "org_lanternway", savedAt: daysAgo(7) },
+      { userId: "u_priya", targetId: "org_corvane", savedAt: daysAgo(3) },
+    ],
+    fitAnswers: {
+      u_maya: { stage: "established", lines: ["commercial", "specialty", "surplus-lines"], model: "employed", training: "mentorship", leads: "own_book", environment: "hybrid", ambitions: ["specialist", "lead_team"], state: "NC", updatedAt: daysAgo(6) },
+    },
   });
 }
