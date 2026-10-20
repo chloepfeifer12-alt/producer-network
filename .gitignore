@@ -45,3 +45,4 @@ next-env.d.ts
 /playwright-report/
 /.next-build/
 *.zip
+preview/dist

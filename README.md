@@ -27,6 +27,7 @@ This repository runs anywhere Node.js runs. If you are reviewing work done in a 
 
 1. **Run locally** (recommended) — steps below; open http://localhost:3000.
 2. **Deploy a preview** — push the repo to GitHub and import it in Vercel (zero config for Next.js) to get a shareable URL. No environment variables are required.
+3. **Single-file preview (Claude Artifact)** — `npm run preview:artifact` builds the whole prototype into one self-contained HTML page at `preview/dist/producer-network.html` (no server needed). It uses the same pages and components; `preview/shims/` swaps `next/link`, `next/navigation` and `next/font` for an in-memory router, and `preview/main.tsx` maps `src/app/**/page.tsx` to routes. The page's address doesn't change as you click (artifact frames can't), but the browser Back button works, and a `#discover`-style link opens that destination. Demo data lives in that viewer's browser storage.
 
 ## Run it locally
 

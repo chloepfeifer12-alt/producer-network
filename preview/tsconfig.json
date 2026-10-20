@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["vite/client"],
+    "paths": { "@/*": ["../src/*"], "next/link": ["./shims/next-link.tsx"], "next/navigation": ["./shims/next-navigation.ts"] }
+  },
+  "include": ["./**/*.ts", "./**/*.tsx", "../src/**/*.ts", "../src/**/*.tsx", "../next-env.d.ts"],
+  "exclude": ["dist"]
+}
